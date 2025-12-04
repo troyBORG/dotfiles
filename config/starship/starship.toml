@@ -334,8 +334,8 @@ error_symbol   = "[❯](fg:red) "
 # ───────────────── Music Player (MPRIS) ─────────────────
 # Works with any MPRIS player: Spotify, VLC, Rhythmbox, etc.
 [custom.music]
-command = "/home/troyborg/.local/bin/spotify-info.sh"
-when = "bash -c '/home/troyborg/.local/bin/spotify-info.sh >/dev/null 2>&1; [ $? -eq 0 ]'"
+command = "/home/troyborg/.local/bin/media-info.sh"
+when = "bash -c '/home/troyborg/.local/bin/media-info.sh >/dev/null 2>&1; [ $? -eq 0 ]'"
 format = "[$output]($style)"
 style = "fg:base bg:green"
 disabled = false

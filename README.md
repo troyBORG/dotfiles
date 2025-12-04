@@ -44,9 +44,9 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 4. **Install scripts:**
    ```bash
    mkdir -p ~/.local/bin
-   cp ~/dotfiles/scripts/spotify-info.sh ~/.local/bin/spotify-info.sh
+   cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
    cp ~/dotfiles/scripts/gpu-load.sh ~/.local/bin/gpu-load.sh
-   chmod +x ~/.local/bin/spotify-info.sh
+   chmod +x ~/.local/bin/media-info.sh
    chmod +x ~/.local/bin/gpu-load.sh
    ```
 
@@ -80,7 +80,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
 | Source | Destination |
 |--------|-------------|
-| `scripts/spotify-info.sh` | `~/.local/bin/spotify-info.sh` |
+| `scripts/media-info.sh` | `~/.local/bin/media-info.sh` |
 | `scripts/gpu-load.sh` | `~/.local/bin/gpu-load.sh` |
 
 ## Features
@@ -101,11 +101,13 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
 ### Scripts
 
-#### `spotify-info.sh`
-Displays currently playing music from any MPRIS-compatible player (Spotify, VLC, etc.)
-- Works with any MPRIS player
-- Shows artist and title
-- Automatically hides when no music is playing
+#### `media-info.sh`
+Displays currently playing media from any MPRIS-compatible player (Spotify, VLC, YouTube, Twitch, Netflix, etc.)
+- Works with any MPRIS player (music players and browsers)
+- Shows artist and title for music, or video title for streaming services
+- Platform-specific icons (YouTube, Twitch, Netflix, Hulu, Amazon Prime, Vimeo, SoundCloud, Plex)
+- Automatically removes platform names from titles
+- Automatically hides when no media is playing
 
 #### `gpu-load.sh`
 Displays GPU utilization percentage

@@ -87,10 +87,16 @@
   {
     "type": "gpu",
     "key": "├─󰢮",
-    "format": "{1} {2}",
     "keyColor": "34",
     "driverSpecific": true,
     "temp": true
+  },
+  {
+    "type": "command",
+    "key": "├─󰾆",
+    "keyColor": "34",
+    "format": "{1}",
+    "command": "/home/troyborg/.local/bin/gpu-load.sh"
   },
   {
     "type": "sound",

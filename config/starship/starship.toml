@@ -1,0 +1,345 @@
+# Main configuration
+add_newline = false
+command_timeout = 1000
+palette = "catppuccin_mocha"
+
+# ───────────────── Prompt layout ─────────────────
+format = """
+[](fg:surface1 bg:base)\
+$os\
+[](fg:surface1 bg:surface2)\
+$username$sudo\
+[](fg:surface2 bg:overlay0)\
+$hostname\
+[](fg:overlay0 bg:mauve)\
+$directory\
+[](fg:mauve bg:peach)\
+$c$dart$dotnet$elixir$elm$erlang$golang$haskell$haxe$java$julia$kotlin$lua$nim$nodejs$rlang$ruby$rust$perl$php$python$scala$swift$zig$package$git_branch\
+[](fg:peach bg:yellow)\
+$git_status\
+[](fg:yellow bg:green)\
+$custom\
+[](fg:green bg:teal)\
+$container$direnv$nix_shell$cmd_duration$jobs$shlvl$status
+$character
+"""
+
+# ─────────────── Catppuccin palette ───────────────
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
+# ───────────────── OS ─────────────────
+[os]
+disabled = false
+format = " $symbol"
+style = "fg:text bg:surface1"
+
+[os.symbols]
+Linux = ""
+Arch = ""
+EndeavourOS = ""
+# (others will just use the style from [os])
+
+# ───────────────── Identity ─────────────────
+[username]
+format = "[ $user]($style)"
+show_always = true
+style_user = "fg:green bg:surface2"
+style_root = "fg:red bg:surface2"
+
+[sudo]
+disabled = false
+format = "[ $symbol]($style)"
+style = "fg:rosewater bg:surface2"
+symbol = ""
+
+[hostname]
+disabled = false
+ssh_only = false
+format = "[ $hostname]($style)[$ssh_symbol](bg:overlay0 fg:maroon)"
+style = "bg:overlay0 fg:red"
+ssh_symbol = " "
+
+# ───────────────── Path ─────────────────
+[directory]
+format = "[ $path]($style)[$read_only]($read_only_style)"
+home_symbol = ""
+read_only = " "
+read_only_style = "bold fg:crust bg:mauve"
+style = "fg:base bg:mauve"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Apps"       = ""
+"Audio"      = ""
+"Crypt"      = ""
+"Desktop"    = ""
+"Development"= ""
+"Documents"  = ""
+"Downloads"  = ""
+"Dropbox"    = ""
+"Games"      = ""
+"Keybase"    = ""
+"Music"      = ""
+"Pictures"   = ""
+"Public"     = ""
+"Quickemu"   = ""
+"Studio"     = ""
+"Vaults"     = ""
+"Videos"     = ""
+"Volatile"   = ""
+"Websites"   = ""
+"nix-config" = ""
+"Zero"       = ""
+
+# ───────────────── Languages ─────────────────
+[c]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[dart]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = "󱬤"
+
+[dotnet]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[elixir]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[elm]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = "󱡂"
+
+[erlang]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[golang]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[haskell]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[haxe]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[java]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[julia]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[kotlin]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[lua]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[nim]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[nodejs]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[perl]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[php]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[python]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[rlang]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[ruby]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[rust]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[scala]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[swift]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[zig]
+format = "[ $symbol]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+# ───────────────── Git ─────────────────
+[package]
+format = "[ $version]($style)"
+style = "fg:base bg:peach"
+version_format = "$raw"
+
+[git_branch]
+format = "[ $symbol $branch]($style)"
+style = "fg:base bg:peach"
+symbol = ""
+
+[git_status]
+format = "[ $all_status$ahead_behind]($style)"
+style = "fg:base bg:yellow"
+conflicted = "=$count"
+untracked = "?$count"
+stashed = "$count"
+modified = "!$count"
+staged = "+$count"
+renamed = "»$count"
+deleted = "✘$count"
+typechanged = "~$count"
+ahead = "⇡$count"
+behind = "⇣$count"
+diverged = "⇕⇡$ahead_count⇣$behind_count"
+up_to_date = ""
+
+# ───────────────── Misc modules ─────────────────
+[container]
+format = "[ $symbol $name]($style)"
+style = "fg:base bg:teal"
+symbol = ""
+
+[direnv]
+disabled = false
+format = "[ $loaded]($style)"
+allowed_msg = ""
+not_allowed_msg = ""
+denied_msg = ""
+loaded_msg = ""
+unloaded_msg = ""
+style = "fg:base bg:teal"
+symbol = ""
+
+[nix_shell]
+format = "[ $symbol]($style)"
+style = "fg:base bg:teal"
+symbol = ""
+
+[cmd_duration]
+format = "[  $duration]($style)"
+min_time = 2500
+min_time_to_notify = 60000
+show_notifications = false
+style = "fg:base bg:teal"
+
+[jobs]
+format = "[ $symbol $number]($style)"
+style = "fg:base bg:teal"
+symbol = ""
+threshold = 3
+
+[shlvl]
+disabled = false
+format = "[ $symbol]($style)"
+repeat = false
+style = "fg:surface1 bg:teal"
+symbol = ""
+
+# ───────────────── Status + prompt char ─────────────────
+[status]
+disabled = false
+format = "$symbol"
+map_symbol = true
+pipestatus = false
+style = ""
+
+# success → no visible segment
+success_symbol = ""
+
+symbol                 = "[](fg:teal bg:pink)[  $status](fg:red bg:pink)"
+not_executable_symbol  = "[](fg:teal bg:pink)[  $common_meaning](fg:red bg:pink)"
+not_found_symbol       = "[](fg:teal bg:pink)[  $common_meaning](fg:red bg:pink)"
+sigint_symbol          = "[](fg:teal bg:pink)[  $signal_name](fg:red bg:pink)"
+signal_symbol          = "[](fg:teal bg:pink)[ ⚡ $signal_name](fg:red bg:pink)"
+
+[character]
+disabled = false
+format = "$symbol"
+success_symbol = "[❯](fg:blue) "
+error_symbol   = "[❯](fg:red) "
+
+# ───────────────── Music Player (MPRIS) ─────────────────
+# Works with any MPRIS player: Spotify, VLC, Rhythmbox, etc.
+[custom.music]
+command = "/home/troyborg/.local/bin/spotify-info.sh"
+when = "bash -c '/home/troyborg/.local/bin/spotify-info.sh >/dev/null 2>&1; [ $? -eq 0 ]'"
+format = "[$output]($style)"
+style = "fg:base bg:green"
+disabled = false
+# Script returns exit code 1 when no music, which should hide the module
+
+[time]
+disabled = true

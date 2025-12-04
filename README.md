@@ -2,6 +2,9 @@
 
 My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
+<img width="1278" height="645" alt="image" src="https://github.com/user-attachments/assets/a96d875e-47da-47a6-b9a2-a30317d0378a" />
+
+
 ## Contents
 
 - **Fastfetch** - System information display

@@ -60,10 +60,39 @@ format = " $symbol"
 style = "fg:text bg:surface1"
 
 [os.symbols]
-Linux = ""
-Arch = ""
-EndeavourOS = ""
-# (others will just use the style from [os])
+Alpine = " "
+AlmaLinux = " "
+Amazon = " "
+Android = " "
+AOSC = " "
+Arch = " "
+Artix = " "
+CachyOS = "🐺"
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = "󰛓 "
+Gentoo = " "
+Kali = " "
+Linux = " "
+Macos = " "
+Manjaro = " "
+Mint = " "
+NixOS = " "
+openSUSE = " "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
+SUSE = " "
+Ubuntu = " "
+Void = " "
+Windows = "󰍲 "
 
 # ───────────────── Identity ─────────────────
 [username]
@@ -83,13 +112,13 @@ disabled = false
 ssh_only = false
 format = "[ $hostname]($style)[$ssh_symbol](bg:overlay0 fg:maroon)"
 style = "bg:overlay0 fg:red"
-ssh_symbol = " "
+ssh_symbol = " "
 
 # ───────────────── Path ─────────────────
 [directory]
 format = "[ $path]($style)[$read_only]($read_only_style)"
 home_symbol = ""
-read_only = " "
+read_only = " 󰌾"
 read_only_style = "bold fg:crust bg:mauve"
 style = "fg:base bg:mauve"
 truncation_length = 3
@@ -122,12 +151,12 @@ truncation_symbol = "…/"
 [c]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [dart]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = "󱬤"
+symbol = " "
 
 [dotnet]
 format = "[ $symbol]($style)"
@@ -137,118 +166,119 @@ symbol = ""
 [elixir]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [elm]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = "󱡂"
+symbol = " "
 
 [erlang]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [golang]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [haskell]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [haxe]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [java]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [julia]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [kotlin]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [lua]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [nim]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = "󰆥 "
 
 [nodejs]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [perl]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [php]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [python]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [rlang]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = "󰟔 "
 
 [ruby]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [rust]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = "󱘗 "
 
 [scala]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [swift]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [zig]
 format = "[ $symbol]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 # ───────────────── Git ─────────────────
 [package]
 format = "[ $version]($style)"
 style = "fg:base bg:peach"
 version_format = "$raw"
+symbol = "󰏗 "
 
 [git_branch]
 format = "[ $symbol $branch]($style)"
 style = "fg:base bg:peach"
-symbol = ""
+symbol = " "
 
 [git_status]
 format = "[ $all_status$ahead_behind]($style)"
@@ -270,7 +300,7 @@ up_to_date = ""
 [container]
 format = "[ $symbol $name]($style)"
 style = "fg:base bg:teal"
-symbol = ""
+symbol = " "
 
 [direnv]
 disabled = false
@@ -286,7 +316,7 @@ symbol = ""
 [nix_shell]
 format = "[ $symbol]($style)"
 style = "fg:base bg:teal"
-symbol = ""
+symbol = " "
 
 [cmd_duration]
 format = "[  $duration]($style)"

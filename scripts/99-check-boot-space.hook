@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Type = Package
+Target = linux*
+Target = linux-*
+
+[Action]
+Description = Checking /boot/efi space before kernel update...
+When = PreTransaction
+Exec = /home/troyborg/dotfiles/scripts/pre-update-boot-check.sh

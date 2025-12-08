@@ -99,6 +99,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/media-info.sh` | `~/.local/bin/media-info.sh` |
 | `scripts/gpu-load.sh` | `~/.local/bin/gpu-load.sh` |
 | `scripts/zfs-rollback.sh` | `~/dotfiles/scripts/zfs-rollback.sh` (or symlink to `/usr/local/bin/zfs-rollback`) |
+| `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
 | `scripts/zfs-snapshot-cleanup.service` | `/etc/systemd/system/zfs-snapshot-cleanup.service` (for automatic cleanup) |
 | `scripts/zfs-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-snapshot-cleanup.timer` (for automatic cleanup) |
 
@@ -145,6 +146,14 @@ ZFS snapshot management and rollback helper for systems using ZFS with automatic
 - Works with automatic pacman pre-transaction snapshots
 - Includes safety prompts before destructive operations
 - Designed for CachyOS/Arch Linux with ZFS root filesystem
+
+#### `check-boot-space.sh`
+Monitor `/boot` and `/boot/efi` partition space to prevent running out of space during kernel updates
+- **Quick check**: `check-boot-space.sh` - Shows space usage, largest files, and installed kernels
+- **Warnings**: Alerts when space usage exceeds 60% (warning) or 80% (critical)
+- **Kernel info**: Lists installed kernel packages and boot files
+- **Recommendations**: Provides cleanup suggestions when needed
+- Helps prevent the "boot partition full" issue during kernel updates
 
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:

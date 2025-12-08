@@ -9,7 +9,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
 - **Fastfetch** - System information display
 - **Starship** - Cross-shell prompt
-- **Scripts** - Helper scripts for Starship modules
+- **Scripts** - Helper scripts for Starship modules and system management
 
 ## Installation
 
@@ -49,6 +49,13 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    chmod +x ~/.local/bin/media-info.sh
    chmod +x ~/.local/bin/gpu-load.sh
    ```
+   
+   **Optional - ZFS Rollback Script:**
+   ```bash
+   # Add to PATH or create symlink
+   sudo ln -s ~/dotfiles/scripts/zfs-rollback.sh /usr/local/bin/zfs-rollback
+   # Or add to your shell config: export PATH="$HOME/dotfiles/scripts:$PATH"
+   ```
 
 5. **Initialize Starship in your shell:**
    
@@ -82,6 +89,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 |--------|-------------|
 | `scripts/media-info.sh` | `~/.local/bin/media-info.sh` |
 | `scripts/gpu-load.sh` | `~/.local/bin/gpu-load.sh` |
+| `scripts/zfs-rollback.sh` | `~/dotfiles/scripts/zfs-rollback.sh` (or symlink to `/usr/local/bin/zfs-rollback`) |
 
 ## Features
 
@@ -116,6 +124,17 @@ Displays GPU utilization percentage
 - **AMD (open-source)**: Falls back to sysfs (`/sys/class/drm/card*/device/gpu_busy_percent`)
 - Automatically detects GPU vendor
 
+#### `zfs-rollback.sh`
+ZFS snapshot management and rollback helper for systems using ZFS with automatic pacman snapshots
+- **List snapshots**: `zfs-rollback list` - View all pacman snapshots
+- **Latest snapshot**: `zfs-rollback latest` - Show the most recent snapshot
+- **Rollback**: `zfs-rollback rollback [SNAPSHOT]` - Rollback to a specific snapshot (or latest)
+- **Info**: `zfs-rollback info [SNAPSHOT]` - Show detailed snapshot information
+- **Cleanup**: `zfs-rollback cleanup [DAYS]` - Delete snapshots older than N days (default: 30)
+- Works with automatic pacman pre-transaction snapshots
+- Includes safety prompts before destructive operations
+- Designed for CachyOS/Arch Linux with ZFS root filesystem
+
 ## Dependencies
 
 - `fastfetch` - [Installation](https://github.com/fastfetch-cli/fastfetch)
@@ -123,6 +142,7 @@ Displays GPU utilization percentage
 - `dbus-send` - Usually comes with D-Bus (system package)
 - `nvidia-smi` - Comes with NVIDIA drivers (for NVIDIA GPU load)
 - `rocm-smi` - AMD ROCm tools (optional, for AMD GPU load)
+- `zfs` - ZFS filesystem tools (for `zfs-rollback.sh` script, requires ZFS root filesystem)
 
 ## Customization
 

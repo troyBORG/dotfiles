@@ -128,6 +128,13 @@
     }
   },
   {
+    "type": "command",
+    "key": "├─󰟀",
+    "keyColor": "34",
+    "format": "Boot: {1}",
+    "command": "/home/troyborg/dotfiles/scripts/boot-space.sh"
+  },
+  {
     "type": "localip",
     "key": "╰─󱦂",
     "keyColor": "34",

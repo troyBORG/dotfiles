@@ -156,6 +156,7 @@ rollback_snapshot() {
 
 cleanup_snapshots() {
     local days="${1:-30}"
+    local non_interactive="${2:-false}"
     local cutoff_date=$(date -d "${days} days ago" +%s 2>/dev/null || date -v-${days}d +%s 2>/dev/null || echo "")
     
     if [[ -z "$cutoff_date" ]]; then
@@ -187,11 +188,15 @@ cleanup_snapshots() {
         echo "  - $snap"
     done
     echo ""
-    read -p "Delete these snapshots? (type 'yes' to confirm): " confirm
     
-    if [[ "$confirm" != "yes" ]]; then
-        echo -e "${GREEN}Cleanup cancelled.${NC}"
-        exit 0
+    if [[ "$non_interactive" != "true" ]]; then
+        read -p "Delete these snapshots? (type 'yes' to confirm): " confirm
+        if [[ "$confirm" != "yes" ]]; then
+            echo -e "${GREEN}Cleanup cancelled.${NC}"
+            exit 0
+        fi
+    else
+        echo -e "${BLUE}Non-interactive mode: proceeding with deletion...${NC}"
     fi
     
     local deleted=0
@@ -222,7 +227,7 @@ case "${1:-list}" in
         show_info "${2:-}"
         ;;
     cleanup)
-        cleanup_snapshots "${2:-30}"
+        cleanup_snapshots "${2:-30}" "${3:-false}"
         ;;
     help|--help|-h)
         usage

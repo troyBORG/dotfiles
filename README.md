@@ -56,6 +56,15 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    sudo ln -s ~/dotfiles/scripts/zfs-rollback.sh /usr/local/bin/zfs-rollback
    # Or add to your shell config: export PATH="$HOME/dotfiles/scripts:$PATH"
    ```
+   
+   **Optional - Automatic Snapshot Cleanup:**
+   ```bash
+   # Set up weekly automatic cleanup (keeps last 30 days of snapshots)
+   sudo cp ~/dotfiles/scripts/zfs-snapshot-cleanup.service /etc/systemd/system/
+   sudo cp ~/dotfiles/scripts/zfs-snapshot-cleanup.timer /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now zfs-snapshot-cleanup.timer
+   ```
 
 5. **Initialize Starship in your shell:**
    
@@ -90,6 +99,8 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/media-info.sh` | `~/.local/bin/media-info.sh` |
 | `scripts/gpu-load.sh` | `~/.local/bin/gpu-load.sh` |
 | `scripts/zfs-rollback.sh` | `~/dotfiles/scripts/zfs-rollback.sh` (or symlink to `/usr/local/bin/zfs-rollback`) |
+| `scripts/zfs-snapshot-cleanup.service` | `/etc/systemd/system/zfs-snapshot-cleanup.service` (for automatic cleanup) |
+| `scripts/zfs-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-snapshot-cleanup.timer` (for automatic cleanup) |
 
 ## Features
 
@@ -134,6 +145,23 @@ ZFS snapshot management and rollback helper for systems using ZFS with automatic
 - Works with automatic pacman pre-transaction snapshots
 - Includes safety prompts before destructive operations
 - Designed for CachyOS/Arch Linux with ZFS root filesystem
+
+**Automatic Cleanup Setup:**
+Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:
+
+1. Install the systemd service and timer (see `scripts/zfs-snapshot-cleanup.service` and `scripts/zfs-snapshot-cleanup.timer`):
+   ```bash
+   sudo cp ~/dotfiles/scripts/zfs-snapshot-cleanup.service /etc/systemd/system/
+   sudo cp ~/dotfiles/scripts/zfs-snapshot-cleanup.timer /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now zfs-snapshot-cleanup.timer
+   ```
+
+2. This will automatically delete snapshots older than 30 days every week (runs in non-interactive mode).
+
+3. To adjust the retention period, edit `/etc/systemd/system/zfs-snapshot-cleanup.service` and change the `cleanup 30` parameter.
+
+4. Check timer status: `systemctl status zfs-snapshot-cleanup.timer`
 
 ## Dependencies
 

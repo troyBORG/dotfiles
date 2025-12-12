@@ -25,7 +25,8 @@ Commands:
     latest                  Show the latest snapshot
     rollback [SNAPSHOT]     Rollback to a specific snapshot (or latest if not specified)
     info [SNAPSHOT]         Show detailed info about a snapshot
-    cleanup [DAYS]          Delete snapshots older than N days (default: 30)
+    cleanup [DAYS] [--yes]  Delete snapshots older than N days (default: 30)
+                           Use --yes or -y to skip confirmation prompt
     help                    Show this help message
 
 Examples:
@@ -35,6 +36,7 @@ Examples:
     $0 rollback zpcachyos/ROOT/cos/root@pacman-pre-20251208-031512-123456789
     $0 info
     $0 cleanup 7
+    $0 cleanup 7 --yes
 
 WARNING: Rollback will destroy all changes made after the snapshot was taken!
 EOF
@@ -157,6 +159,12 @@ rollback_snapshot() {
 cleanup_snapshots() {
     local days="${1:-30}"
     local non_interactive="${2:-false}"
+    
+    # Check for --yes or -y flag
+    if [[ "$non_interactive" == "--yes" ]] || [[ "$non_interactive" == "-y" ]]; then
+        non_interactive="true"
+    fi
+    
     local cutoff_date=$(date -d "${days} days ago" +%s 2>/dev/null || date -v-${days}d +%s 2>/dev/null || echo "")
     
     if [[ -z "$cutoff_date" ]]; then
@@ -200,16 +208,25 @@ cleanup_snapshots() {
     fi
     
     local deleted=0
+    local failed=0
+    # Disable exit-on-error for the deletion loop to ensure all snapshots are attempted
+    set +e
     for snap in "${to_delete[@]}"; do
-        if zfs destroy "$snap"; then
+        if zfs destroy "$snap" 2>/dev/null; then
             echo -e "${GREEN}✓ Deleted: $snap${NC}"
             ((deleted++))
         else
             echo -e "${RED}✗ Failed to delete: $snap${NC}"
+            ((failed++))
         fi
     done
+    set -e
     
     echo -e "\n${GREEN}Deleted $deleted snapshot(s).${NC}"
+    if [[ $failed -gt 0 ]]; then
+        echo -e "${YELLOW}Failed to delete $failed snapshot(s).${NC}"
+        exit 1
+    fi
 }
 
 # Main command handling

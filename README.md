@@ -9,6 +9,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
 - **Fastfetch** - System information display
 - **Starship** - Cross-shell prompt
+- **Konsole** - Terminal profile with color scheme and font configuration
 - **Scripts** - Helper scripts for Starship modules and system management
 
 ## Installation
@@ -41,7 +42,16 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    cp ~/dotfiles/config/starship/starship.toml ~/.config/starship.toml
    ```
 
-4. **Install scripts:**
+4. **Install Konsole profile (optional):**
+   ```bash
+   mkdir -p ~/.local/share/konsole ~/.config
+   cp ~/dotfiles/config/konsole/"Troy Theme.profile" ~/.local/share/konsole/
+   cp ~/dotfiles/config/konsole/DarkOneNuanced.colorscheme ~/.local/share/konsole/
+   cp ~/dotfiles/config/konsole/konsolerc ~/.config/konsolerc
+   ```
+   Then open Konsole settings and set "Troy Theme" as your default profile.
+
+5. **Install scripts:**
    ```bash
    mkdir -p ~/.local/bin
    cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
@@ -66,7 +76,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    sudo systemctl enable --now zfs-snapshot-cleanup.timer
    ```
 
-5. **Initialize Starship in your shell:**
+6. **Initialize Starship in your shell:**
    
    For **Fish shell** (add to `~/.config/fish/config.fish`):
    ```fish
@@ -91,6 +101,9 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 |--------|-------------|
 | `config/fastfetch/config.jsonc` | `~/.config/fastfetch/config.jsonc` |
 | `config/starship/starship.toml` | `~/.config/starship/starship.toml` |
+| `config/konsole/Troy Theme.profile` | `~/.local/share/konsole/Troy Theme.profile` |
+| `config/konsole/DarkOneNuanced.colorscheme` | `~/.local/share/konsole/DarkOneNuanced.colorscheme` |
+| `config/konsole/konsolerc` | `~/.config/konsolerc` |
 
 ### Scripts
 
@@ -118,6 +131,11 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 - Git status indicators
 - Custom music module (shows currently playing track from any MPRIS player)
 - Custom GPU load module (NVIDIA/AMD support)
+
+### Konsole
+- "Troy Theme" profile with DarkOneNuanced color scheme
+- Configured with Hack font (Nerd Font compatible)
+- Optimized for terminal usage with custom colors
 
 ### Scripts
 
@@ -188,6 +206,9 @@ The Starship config uses the Catppuccin Mocha palette. To change colors, edit `~
 
 ### Fastfetch Layout
 To customize the Fastfetch display, edit `~/.config/fastfetch/config.jsonc` and modify the `modules` array.
+
+### Konsole Profile
+The Konsole profile uses the DarkOneNuanced color scheme with Hack font. To customize, edit the profile files in `~/.local/share/konsole/` or modify the color scheme file.
 
 ## License
 

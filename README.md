@@ -59,6 +59,15 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    Then open Konsole settings and set "Troy Theme" as your default profile.
 
 6. **Install KDE theme configuration (optional):**
+   
+   **Option A: Install as a selectable color scheme (Recommended):**
+   ```bash
+   mkdir -p ~/.local/share/color-schemes
+   cp ~/dotfiles/config/kde/TroyGreen.colors ~/.local/share/color-schemes/
+   ```
+   Then open KDE System Settings → Appearance → Colors and select "Troy Green" from the list.
+   
+   **Option B: Install by copying config files directly:**
    ```bash
    cp ~/dotfiles/config/kde/kdeglobals ~/.config/kdeglobals
    cp ~/dotfiles/config/kde/plasmarc ~/.config/plasmarc
@@ -118,7 +127,8 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `config/konsole/Troy Theme.profile` | `~/.local/share/konsole/Troy Theme.profile` |
 | `config/konsole/DarkOneNuanced.colorscheme` | `~/.local/share/konsole/DarkOneNuanced.colorscheme` |
 | `config/konsole/konsolerc` | `~/.config/konsolerc` |
-| `config/kde/kdeglobals` | `~/.config/kdeglobals` |
+| `config/kde/TroyGreen.colors` | `~/.local/share/color-schemes/TroyGreen.colors` (recommended - shows in System Settings) |
+| `config/kde/kdeglobals` | `~/.config/kdeglobals` (alternative method) |
 | `config/kde/plasmarc` | `~/.config/plasmarc` |
 
 ### Scripts
@@ -234,7 +244,11 @@ To customize the Fastfetch display, edit `~/.config/fastfetch/config.jsonc` and 
 The Konsole profile uses the DarkOneNuanced color scheme with Hack font. To customize, edit the profile files in `~/.local/share/konsole/` or modify the color scheme file.
 
 ### KDE Theme
-The KDE theme configuration includes custom colors, icons, and look-and-feel settings. The `kdeglobals` file contains color scheme definitions and the `plasmarc` file contains wallpaper settings (sanitized in the repository). To customize, edit these files or use KDE System Settings to modify and then copy the updated files back to the repository.
+The KDE theme configuration includes a custom "Troy Green" color scheme with a green accent color (RGB: 61,212,37). The theme can be installed as a selectable color scheme (recommended) or by copying config files directly.
+
+**As a color scheme:** Install `TroyGreen.colors` to `~/.local/share/color-schemes/` and select it from KDE System Settings → Appearance → Colors.
+
+**Direct config:** The `kdeglobals` file contains color scheme definitions and the `plasmarc` file contains wallpaper settings (sanitized in the repository). The config uses the CachyOS-Nord look-and-feel package and breeze-dark icons. To customize, edit these files or use KDE System Settings to modify and then copy the updated files back to the repository.
 
 ## License
 

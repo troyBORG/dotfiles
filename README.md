@@ -36,13 +36,19 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
    ```
 
-3. **Install Starship config:**
+3. **Install Starship binary:**
+   ```bash
+   curl -sS https://starship.rs/install.sh | sh
+   ```
+   To update Starship later, rerun the above script. It will replace the current version without touching Starship's configuration.
+
+4. **Install Starship config:**
    ```bash
    mkdir -p ~/.config
    cp ~/dotfiles/config/starship/starship.toml ~/.config/starship.toml
    ```
 
-4. **Install Konsole profile (optional):**
+5. **Install Konsole profile (optional):**
    ```bash
    mkdir -p ~/.local/share/konsole ~/.config
    cp ~/dotfiles/config/konsole/"Troy Theme.profile" ~/.local/share/konsole/
@@ -51,7 +57,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    ```
    Then open Konsole settings and set "Troy Theme" as your default profile.
 
-5. **Install scripts:**
+6. **Install scripts:**
    ```bash
    mkdir -p ~/.local/bin
    cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
@@ -76,7 +82,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    sudo systemctl enable --now zfs-snapshot-cleanup.timer
    ```
 
-6. **Initialize Starship in your shell:**
+7. **Initialize Starship in your shell:**
    
    For **Fish shell** (add to `~/.config/fish/config.fish`):
    ```fish

@@ -10,6 +10,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 - **Fastfetch** - System information display
 - **Starship** - Cross-shell prompt
 - **Konsole** - Terminal profile with color scheme and font configuration
+- **KDE** - Desktop theme configuration (colors, icons, look-and-feel)
 - **Scripts** - Helper scripts for Starship modules and system management
 
 ## Installation
@@ -57,7 +58,14 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    ```
    Then open Konsole settings and set "Troy Theme" as your default profile.
 
-6. **Install scripts:**
+6. **Install KDE theme configuration (optional):**
+   ```bash
+   cp ~/dotfiles/config/kde/kdeglobals ~/.config/kdeglobals
+   cp ~/dotfiles/config/kde/plasmarc ~/.config/plasmarc
+   ```
+   Note: This config uses the CachyOS-Nord look-and-feel package. You may need to install it or adjust the `LookAndFeelPackage` setting in `kdeglobals` to match your installed theme. The theme uses a green accent color and breeze-dark icons.
+
+7. **Install scripts:**
    ```bash
    mkdir -p ~/.local/bin
    cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
@@ -82,7 +90,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    sudo systemctl enable --now zfs-snapshot-cleanup.timer
    ```
 
-7. **Initialize Starship in your shell:**
+8. **Initialize Starship in your shell:**
    
    For **Fish shell** (add to `~/.config/fish/config.fish`):
    ```fish
@@ -110,6 +118,8 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `config/konsole/Troy Theme.profile` | `~/.local/share/konsole/Troy Theme.profile` |
 | `config/konsole/DarkOneNuanced.colorscheme` | `~/.local/share/konsole/DarkOneNuanced.colorscheme` |
 | `config/konsole/konsolerc` | `~/.config/konsolerc` |
+| `config/kde/kdeglobals` | `~/.config/kdeglobals` |
+| `config/kde/plasmarc` | `~/.config/plasmarc` |
 
 ### Scripts
 
@@ -142,6 +152,13 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 - "Troy Theme" profile with DarkOneNuanced color scheme
 - Configured with Hack font (Nerd Font compatible)
 - Optimized for terminal usage with custom colors
+
+### KDE
+- Custom color scheme with green accent color (RGB: 61,212,37)
+- CachyOS-Nord look-and-feel package
+- breeze-dark icon theme
+- Custom window manager colors
+- Configured file dialog settings
 
 ### Scripts
 
@@ -215,6 +232,9 @@ To customize the Fastfetch display, edit `~/.config/fastfetch/config.jsonc` and 
 
 ### Konsole Profile
 The Konsole profile uses the DarkOneNuanced color scheme with Hack font. To customize, edit the profile files in `~/.local/share/konsole/` or modify the color scheme file.
+
+### KDE Theme
+The KDE theme configuration includes custom colors, icons, and look-and-feel settings. The `kdeglobals` file contains color scheme definitions and the `plasmarc` file contains wallpaper settings (sanitized in the repository). To customize, edit these files or use KDE System Settings to modify and then copy the updated files back to the repository.
 
 ## License
 

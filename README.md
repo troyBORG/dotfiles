@@ -23,6 +23,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 - `fish` shell (or your preferred shell)
 - `dbus-send` - For music info script (usually comes with D-Bus)
 - `nvidia-smi` or AMD GPU tools - For GPU load script (optional)
+- `ffmpeg` - For screenshot cropping script (optional)
 
 ### Setup
 
@@ -90,6 +91,14 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    # Or add to your shell config: export PATH="$HOME/dotfiles/scripts:$PATH"
    ```
    
+   **Optional - Screenshot Cropping Script:**
+   ```bash
+   chmod +x ~/dotfiles/scripts/crop_screenshot.sh
+   # Add to PATH or create symlink
+   sudo ln -s ~/dotfiles/scripts/crop_screenshot.sh /usr/local/bin/crop-screenshot
+   # Or add to your shell config: export PATH="$HOME/dotfiles/scripts:$PATH"
+   ```
+   
    **Optional - Automatic Snapshot Cleanup:**
    ```bash
    # Set up weekly automatic cleanup (keeps last 30 days of snapshots)
@@ -139,6 +148,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/gpu-load.sh` | `~/.local/bin/gpu-load.sh` |
 | `scripts/zfs-rollback.sh` | `~/dotfiles/scripts/zfs-rollback.sh` (or symlink to `/usr/local/bin/zfs-rollback`) |
 | `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
+| `scripts/crop_screenshot.sh` | `~/dotfiles/scripts/crop_screenshot.sh` (or add to PATH) |
 | `scripts/zfs-snapshot-cleanup.service` | `/etc/systemd/system/zfs-snapshot-cleanup.service` (for automatic cleanup) |
 | `scripts/zfs-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-snapshot-cleanup.timer` (for automatic cleanup) |
 
@@ -206,6 +216,14 @@ Monitor `/boot` and `/boot/efi` partition space to prevent running out of space 
 - **Recommendations**: Provides cleanup suggestions when needed
 - Helps prevent the "boot partition full" issue during kernel updates
 
+#### `crop_screenshot.sh`
+FFmpeg utility to split tall screenshots into chunks
+- **Auto-detection**: Automatically detects image dimensions
+- **Smart chunking**: Auto-calculates optimal chunk height to create ~12 chunks
+- **Manual override**: Optional chunk height parameter for custom chunk sizes
+- **Usage**: `./crop_screenshot.sh image.png [chunk_height]`
+- Useful for processing very tall screenshots or images that are too large to handle as a single file
+
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:
 
@@ -231,6 +249,7 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 - `nvidia-smi` - Comes with NVIDIA drivers (for NVIDIA GPU load)
 - `rocm-smi` - AMD ROCm tools (optional, for AMD GPU load)
 - `zfs` - ZFS filesystem tools (for `zfs-rollback.sh` script, requires ZFS root filesystem)
+- `ffmpeg` - Image/video processing tools (for `crop_screenshot.sh` script)
 
 ## Customization
 

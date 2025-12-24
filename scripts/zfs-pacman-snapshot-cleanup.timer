@@ -1,6 +1,6 @@
 [Unit]
 Description=Weekly cleanup of old ZFS pacman snapshots
-Requires=zfs-snapshot-cleanup.service
+Requires=zfs-pacman-snapshot-cleanup.service
 
 [Timer]
 OnCalendar=weekly

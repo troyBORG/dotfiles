@@ -101,7 +101,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    
    **Optional - Automatic Snapshot Cleanup:**
    ```bash
-   # Set up weekly automatic cleanup (keeps last 30 days of snapshots)
+   # Set up weekly automatic cleanup (keeps last 14 days of snapshots)
    sudo cp ~/dotfiles/scripts/zfs-pacman-snapshot-cleanup.service /etc/systemd/system/
    sudo cp ~/dotfiles/scripts/zfs-pacman-snapshot-cleanup.timer /etc/systemd/system/
    sudo systemctl daemon-reload
@@ -235,9 +235,9 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
    sudo systemctl enable --now zfs-pacman-snapshot-cleanup.timer
    ```
 
-2. This will automatically delete snapshots older than 30 days every week (runs in non-interactive mode).
+2. This will automatically delete snapshots older than 14 days every week (runs in non-interactive mode). The 14-day retention period is appropriate for pacman snapshots on rolling distributions like CachyOS - they're transactional rollback points, not archival backups. If you need longer-term recovery, use the `znap_*` snapshots instead.
 
-3. To adjust the retention period, edit `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` and change the `cleanup 30` parameter.
+3. To adjust the retention period, edit `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` and change the `cleanup 14` parameter. Typical values: 7 days (aggressive), 10-14 days (recommended), or 30 days (overkill but harmless).
 
 4. Check timer status: `systemctl status zfs-pacman-snapshot-cleanup.timer`
 

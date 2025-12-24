@@ -4,6 +4,6 @@ After=zfs.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/troyborg/dotfiles/scripts/zfs-rollback.sh cleanup 30 true
+ExecStart=/home/troyborg/dotfiles/scripts/zfs-rollback.sh cleanup 14 true
 StandardOutput=journal
 StandardError=journal

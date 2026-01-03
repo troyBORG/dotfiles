@@ -2,7 +2,7 @@
 
 My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
-<img width="1278" height="645" alt="image" src="https://github.com/user-attachments/assets/a96d875e-47da-47a6-b9a2-a30317d0378a" />
+<a href="https://github-production-user-asset-6210df.s3.amazonaws.com/10406330/522151725-a96d875e-47da-47a6-b9a2-a30317d0378a.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20260103%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260103T060835Z&X-Amz-Expires=300&X-Amz-Signature=93861b2726f6d668dc6c12326d11b1ddcffde5293d636a0f25ca6a17c9801c81&X-Amz-SignedHeaders=host"><img width="1278" height="645" alt="image" src="https://github.com/user-attachments/assets/a96d875e-47da-47a6-b9a2-a30317d0378a" /></a>
 
 
 ## Contents

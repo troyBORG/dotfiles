@@ -149,6 +149,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/zfs-rollback.sh` | `~/dotfiles/scripts/zfs-rollback.sh` (or symlink to `/usr/local/bin/zfs-rollback`) |
 | `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
 | `scripts/crop_screenshot.sh` | `~/dotfiles/scripts/crop_screenshot.sh` (or add to PATH) |
+| `scripts/check-arc-cache.sh` | `~/dotfiles/scripts/check-arc-cache.sh` (or add to PATH) |
 | `scripts/zfs-pacman-snapshot-cleanup.service` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` (for automatic pacman snapshot cleanup) |
 | `scripts/zfs-pacman-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.timer` (for automatic pacman snapshot cleanup) |
 
@@ -224,6 +225,18 @@ FFmpeg utility to split tall screenshots into chunks
 - **Usage**: `./crop_screenshot.sh image.png [chunk_height]`
 - Useful for processing very tall screenshots or images that are too large to handle as a single file
 
+#### `check-arc-cache.sh`
+ZFS ARC cache analysis tool to see what datasets are likely cached
+- **ARC statistics**: Shows total ARC size, data cache size, and cache hit rate
+- **Dataset analysis**: Calculates which datasets are likely cached by comparing sizes to ARC
+- **Cache effectiveness**: Displays hit rate and cache status (excellent/good/fair/poor)
+- **Usage**: 
+  - `./check-arc-cache.sh` - Check all datasets
+  - `./check-arc-cache.sh --resonite` - Only check Resonite datasets
+  - `./check-arc-cache.sh --dataset zpcachyos/ROOT/cos/home/resonite-cache` - Check specific dataset
+  - `./check-arc-cache.sh --brief` - Brief output format
+- Helps identify what files are being cached by ZFS ARC (useful for understanding why RAM usage is high)
+
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:
 
@@ -250,8 +263,9 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 - `dbus-send` - Usually comes with D-Bus (system package)
 - `nvidia-smi` - Comes with NVIDIA drivers (for NVIDIA GPU load)
 - `rocm-smi` - AMD ROCm tools (optional, for AMD GPU load)
-- `zfs` - ZFS filesystem tools (for `zfs-rollback.sh` script, requires ZFS root filesystem)
+- `zfs` - ZFS filesystem tools (for `zfs-rollback.sh` and `check-arc-cache.sh` scripts, requires ZFS root filesystem)
 - `ffmpeg` - Image/video processing tools (for `crop_screenshot.sh` script)
+- `arc_summary` - ZFS ARC statistics tool (comes with zfs-utils package, for `check-arc-cache.sh`)
 
 ## Customization
 

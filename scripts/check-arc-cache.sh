@@ -158,8 +158,32 @@ analyze_datasets() {
     elif [ -n "$dataset_filter" ] && [ "$dataset_filter" != "all" ]; then
         datasets="$dataset_filter"
     else
-        # Get all datasets, prioritize larger ones
-        datasets=$(zfs list -H -o name | grep -v "^zpcachyos/ROOT/cos/root$" | head -20)
+        # Get all datasets, but exclude parent datasets that have children
+        # This prevents double-counting (e.g., 'home' includes 'resonite-cache' and 'resonite-data')
+        local all_datasets
+        all_datasets=$(zfs list -H -o name | grep -v "^zpcachyos/ROOT/cos/root$")
+        
+        # Filter out parent datasets that have children
+        datasets=""
+        while IFS= read -r dataset; do
+            # Check if this dataset has any child datasets
+            local has_children=false
+            while IFS= read -r other_dataset; do
+                if [[ "$other_dataset" == "${dataset}/"* ]]; then
+                    has_children=true
+                    break
+                fi
+            done <<< "$all_datasets"
+            
+            # Only include if it doesn't have children (to avoid double-counting)
+            if [ "$has_children" = false ]; then
+                if [ -z "$datasets" ]; then
+                    datasets="$dataset"
+                else
+                    datasets="$datasets"$'\n'"$dataset"
+                fi
+            fi
+        done <<< "$all_datasets"
     fi
     
     if [ -z "$datasets" ]; then

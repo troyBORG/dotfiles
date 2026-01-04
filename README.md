@@ -150,6 +150,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
 | `scripts/crop_screenshot.sh` | `~/dotfiles/scripts/crop_screenshot.sh` (or add to PATH) |
 | `scripts/check-arc-cache.sh` | `~/dotfiles/scripts/check-arc-cache.sh` (or add to PATH) |
+| `scripts/kill-wlx-overlay.sh` | `~/dotfiles/scripts/kill-wlx-overlay.sh` (or add to PATH) |
 | `scripts/zfs-pacman-snapshot-cleanup.service` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` (for automatic pacman snapshot cleanup) |
 | `scripts/zfs-pacman-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.timer` (for automatic pacman snapshot cleanup) |
 
@@ -236,6 +237,14 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
   - `./check-arc-cache.sh --dataset zpcachyos/ROOT/cos/home/resonite-cache` - Check specific dataset
   - `./check-arc-cache.sh --brief` - Brief output format
 - Helps identify what files are being cached by ZFS ARC (useful for understanding why RAM usage is high)
+
+#### `kill-wlx-overlay.sh`
+Kill and restart wlx-overlay-s VR overlay helper
+- **Kill stuck processes**: Finds and terminates any running `wlx-overlay-s` processes
+- **Auto-restart**: Automatically restarts with `wlx-overlay-s --replace` after killing
+- **Graceful shutdown**: Tries SIGTERM first, then SIGKILL if needed
+- **Usage**: `./kill-wlx-overlay.sh` - Double-click the desktop shortcut or run from terminal
+- Useful when the overlay gets stuck or needs to be restarted after VR runtime changes
 
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:

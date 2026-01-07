@@ -246,6 +246,44 @@ Kill and restart wlx-overlay-s VR overlay helper
 - **Usage**: `./kill-wlx-overlay.sh` - Double-click the desktop shortcut or run from terminal
 - Useful when the overlay gets stuck or needs to be restarted after VR runtime changes
 
+#### Kernel Management (Ubuntu-style Multiple Kernel Versions)
+Automatically keeps the last 3 kernel versions installed and available in GRUB boot menu (similar to Ubuntu/Pop!_OS behavior)
+
+**Components:**
+- `90-keep-old-kernels.hook` - Pacman hook that preserves old kernel files before removal
+- `91-reinstall-old-kernels.hook` - Pacman hook that updates GRUB after kernel upgrades
+- `keep-kernel-files.sh` - Script that renames old kernel files with version suffixes
+- `reinstall-old-kernels.sh` - Script that updates GRUB and manages kernel cleanup
+
+**How it works:**
+1. When a kernel is upgraded, the pre-transaction hook renames old kernel files in `/boot` with version suffixes (e.g., `vmlinuz-linux-cachyos-lts-6.12.63-2`)
+2. The old kernel package is removed, but the files persist in `/boot`
+3. After the upgrade, GRUB is updated and automatically detects all kernel files
+4. Old kernels appear in the GRUB boot menu alongside the new one
+5. Only the last 3 versions are kept (older ones are automatically cleaned up)
+
+**Setup:**
+```bash
+# Install the pacman hooks
+sudo cp ~/dotfiles/scripts/90-keep-old-kernels.hook /etc/pacman.d/hooks/
+sudo cp ~/dotfiles/scripts/91-reinstall-old-kernels.hook /etc/pacman.d/hooks/
+
+# Make scripts executable
+chmod +x ~/dotfiles/scripts/keep-kernel-files.sh
+chmod +x ~/dotfiles/scripts/reinstall-old-kernels.sh
+
+# Update GRUB to see current kernels
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+**Benefits:**
+- Automatic rollback capability if a new kernel has issues
+- No manual intervention needed - works automatically on every kernel upgrade
+- Mimics Ubuntu/Pop!_OS behavior where multiple kernel versions are available in GRUB
+- Automatic cleanup prevents `/boot` from filling up (keeps only last 3 versions)
+
+**Note:** This works by preserving kernel files in `/boot` even after the package is removed. GRUB automatically detects all `vmlinuz-*` files when you run `grub-mkconfig`, so old kernels will appear in your boot menu automatically.
+
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:
 

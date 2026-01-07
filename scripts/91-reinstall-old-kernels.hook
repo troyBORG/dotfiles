@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = linux-*
+
+[Action]
+Description = Reinstalling old kernels after upgrade so they appear in GRUB...
+When = PostTransaction
+Exec = /home/troyborg/dotfiles/scripts/reinstall-old-kernels.sh
+NeedsTargets

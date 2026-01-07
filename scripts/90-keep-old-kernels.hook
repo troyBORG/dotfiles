@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Remove
+Type = Package
+Target = linux-*
+
+[Action]
+Description = Preserving old kernel files in /boot before removal (Ubuntu-style, keeps last 3)...
+When = PreTransaction
+Exec = /home/troyborg/dotfiles/scripts/keep-kernel-files.sh %t
+NeedsTargets

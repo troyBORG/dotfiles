@@ -147,6 +147,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/media-info.sh` | `~/.local/bin/media-info.sh` |
 | `scripts/gpu-load.sh` | `~/.local/bin/gpu-load.sh` |
 | `scripts/zfs-rollback.sh` | `~/dotfiles/scripts/zfs-rollback.sh` (or symlink to `/usr/local/bin/zfs-rollback`) |
+| `scripts/apply-zfs-snapshot-retention.sh` | `~/dotfiles/scripts/apply-zfs-snapshot-retention.sh` (or add to PATH) |
 | `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
 | `scripts/crop_screenshot.sh` | `~/dotfiles/scripts/crop_screenshot.sh` (or add to PATH) |
 | `scripts/check-arc-cache.sh` | `~/dotfiles/scripts/check-arc-cache.sh` (or add to PATH) |
@@ -210,6 +211,21 @@ ZFS snapshot management and rollback helper for systems using ZFS with automatic
 - Includes safety prompts before destructive operations
 - Designed for CachyOS/Arch Linux with ZFS root filesystem
 
+#### `apply-zfs-snapshot-retention.sh`
+Flexible ZFS auto-snapshot retention policy management for `zfs-auto-snapshot`
+- **Dynamic configuration**: Generates systemd service overrides on-the-fly with any retention values
+- **Usage**: `./apply-zfs-snapshot-retention.sh [MONTHLY] [DAILY] [WEEKLY]`
+  - Defaults: monthly=3, daily=14, weekly=4 (conservative desktop policy)
+  - Examples:
+    - `./apply-zfs-snapshot-retention.sh` - Use defaults
+    - `./apply-zfs-snapshot-retention.sh 6` - Set monthly=6, keep daily=14, weekly=4
+    - `./apply-zfs-snapshot-retention.sh 4 7` - Set monthly=4, daily=7, keep weekly=4
+    - `./apply-zfs-snapshot-retention.sh 6 14 8` - Set all three values
+- **Validates inputs**: Ensures all values are positive integers
+- **Applies immediately**: Creates systemd drop-in overrides and reloads daemon
+- **No static files needed**: Generates configuration dynamically
+- Manages `znap_*` snapshots created by `zfs-auto-snapshot` (hourly/daily/weekly/monthly)
+
 #### `check-boot-space.sh`
 Monitor `/boot` and `/boot/efi` partition space to prevent running out of space during kernel updates
 - **Quick check**: `check-boot-space.sh` - Shows space usage, largest files, and installed kernels
@@ -264,7 +280,7 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 
 4. Check timer status: `systemctl status zfs-pacman-snapshot-cleanup.timer`
 
-**Note:** This cleanup timer only manages `pacman-pre-*` snapshots. The `znap_*` snapshots created by `zfs-auto-snapshot` (hourly/daily/weekly/monthly) are managed separately by their respective timers and have their own retention policies.
+**Note:** This cleanup timer only manages `pacman-pre-*` snapshots. The `znap_*` snapshots created by `zfs-auto-snapshot` (hourly/daily/weekly/monthly) are managed separately by their respective timers and have their own retention policies. Use `apply-zfs-snapshot-retention.sh` to configure retention for `zfs-auto-snapshot` snapshots.
 
 ## Dependencies
 

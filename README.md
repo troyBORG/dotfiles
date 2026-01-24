@@ -254,6 +254,10 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
   - `./check-arc-cache.sh --brief` - Brief output format
 - Helps identify what files are being cached by ZFS ARC (useful for understanding why RAM usage is high)
 
+### Resonite ZFS Tuning Notes
+- **Cache dataset** (`zpcachyos/ROOT/cos/home/resonite-cache`): `recordsize=1M`, `compression=lz4`, `logbias=throughput`, `primarycache=metadata`, `atime=on` (needed for access-time pruning).
+- **Data/DB dataset** (`zpcachyos/ROOT/cos/home/resonite-data`, DB at `/home/troyborg/Resonite/Data/Data.litedb`): `recordsize=16K`, `compression=lz4`, `logbias=latency`, `atime=on`.
+
 #### `kill-wlx-overlay.sh`
 Kill and restart wlx-overlay-s VR overlay helper
 - **Kill stuck processes**: Finds and terminates any running `wlx-overlay-s` processes

@@ -129,7 +129,7 @@
     "percent": {
       "type": 3
     },
-    "hideFolders": "/mnt/4tb"
+    "hideFolders": "/mnt/4tb:/boot/efi:/efi"
   },
   {
     "type": "command",

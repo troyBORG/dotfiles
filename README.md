@@ -38,6 +38,10 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    mkdir -p ~/.config/fastfetch
    cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
    ```
+   **Note:** Fastfetch only reads `~/.config/fastfetch/config.jsonc`. After any edit to the config in dotfiles, copy again so fastfetch (e.g. `fastfetch` / your fastshow alias) uses the new config:
+   ```bash
+   cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
+   ```
 
 3. **Install Starship binary:**
    ```bash
@@ -160,9 +164,9 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
 ### Fastfetch
 - System information display with custom layout
-- GPU temperature and VRAM usage
+- GPU temperature and VRAM usage (via `gpu-load.sh`)
 - CPU temperature
-- Storage usage with progress bars
+- Storage usage with progress bars (disk module shows all mounts including ZFS, same style as RAM/swap)
 - Custom ASCII art logo
 
 ### Starship
@@ -304,7 +308,9 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 The Starship config uses the Catppuccin Mocha palette. To change colors, edit `~/.config/starship.toml` and modify the `[palettes.catppuccin_mocha]` section.
 
 ### Fastfetch Layout
-To customize the Fastfetch display, edit `~/.config/fastfetch/config.jsonc` and modify the `modules` array.
+To customize the Fastfetch display, edit `~/dotfiles/config/fastfetch/config.jsonc` and modify the `modules` array. Then copy to the system so fastfetch uses it:  
+`cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc`  
+(Fastfetch only reads `~/.config/fastfetch/config.jsonc`, not the dotfiles copy.)
 
 ### Konsole Profile
 The Konsole profile uses the DarkOneNuanced color scheme with Hack font. To customize, edit the profile files in `~/.local/share/konsole/` or modify the color scheme file.

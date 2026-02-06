@@ -132,14 +132,6 @@
     "hideFolders": "/mnt/4tb"
   },
   {
-    "type": "zpool",
-    "key": "├─󰋊",
-    "keyColor": "34",
-    "percent": {
-      "type": 3
-    }
-  },
-  {
     "type": "command",
     "key": "├─󰟀",
     "keyColor": "34",

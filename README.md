@@ -261,9 +261,15 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
   - `./check-arc-cache.sh --brief` - Brief output format
 - Helps identify what files are being cached by ZFS ARC (useful for understanding why RAM usage is high)
 
-### Resonite ZFS Tuning Notes
-- **Cache dataset** (`zpcachyos/ROOT/cos/home/resonite-cache`): `recordsize=1M`, `compression=lz4`, `logbias=throughput`, `primarycache=metadata`, `atime=on` (needed for access-time pruning).
-- **Data/DB dataset** (`zpcachyos/ROOT/cos/home/resonite-data`, DB at `/home/troyborg/Resonite/Data/Data.litedb`): `recordsize=16K`, `compression=lz4`, `logbias=latency`, `atime=on`.
+### ZFS Pools & Resonite Tuning
+
+**Pools:** `zpcachyos` (root), `m2_4tb` (Steam/ai_models/downloads/misc). All datasets use `compression=lz4`.
+
+**Resonite datasets on zpcachyos:**
+- **Cache** (`zpcachyos/ROOT/cos/home/resonite-cache`): `recordsize=1M`, `logbias=throughput`, `primarycache=metadata`, `atime=on`. Compressratio ~1.15x.
+- **Data/DB** (`zpcachyos/ROOT/cos/home/resonite-data`, DB at `~/Resonite/Data/Data.litedb`): `recordsize=16K`, `logbias=latency`, `atime=on`. Compressratio ~1.22x.
+
+Check compression: `zfs get -r -t filesystem,volume compression,compressratio zpcachyos m2_4tb`
 
 #### `kill-wlx-overlay.sh`
 Kill and restart wlx-overlay-s VR overlay helper

@@ -115,6 +115,16 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    sudo systemctl enable --now zfs-pacman-snapshot-cleanup.timer
    ```
 
+   **Optional - Random wallpapers (Plasma 6, per-monitor):**
+   ```bash
+   mkdir -p ~/.config/systemd/user
+   cp ~/dotfiles/scripts/random-wallpapers.service ~/.config/systemd/user/
+   cp ~/dotfiles/scripts/random-wallpapers.timer ~/.config/systemd/user/
+   systemctl --user daemon-reload
+   systemctl --user enable --now random-wallpapers.timer
+   ```
+   Uses Plasma’s DBus scripting API (per-monitor; `plasma-apply-wallpaperimage` has no per-output option). Requires `qdbus6` (or `qdbus-qt6`/`qdbus`) and image dirs. **Setup-specific:** edit the script’s directory paths and screen indices (`LEFT_INDEX`/`RIGHT_INDEX`); on another machine (e.g. laptop) the paths or screen order will differ. Runs 2 minutes after login and every 10 minutes.
+
 8. **Initialize Starship in your shell:**
    
    For **Fish shell** (add to `~/.config/fish/config.fish`):
@@ -161,6 +171,9 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/kill-wlx-overlay.sh` | `~/dotfiles/scripts/kill-wlx-overlay.sh` (or add to PATH) |
 | `scripts/zfs-pacman-snapshot-cleanup.service` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` (for automatic pacman snapshot cleanup) |
 | `scripts/zfs-pacman-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.timer` (for automatic pacman snapshot cleanup) |
+| `scripts/random-wallpapers.sh` | `~/dotfiles/scripts/random-wallpapers.sh` (used by user timer) |
+| `scripts/random-wallpapers.service` | `~/.config/systemd/user/random-wallpapers.service` (Plasma per-monitor wallpapers) |
+| `scripts/random-wallpapers.timer` | `~/.config/systemd/user/random-wallpapers.timer` (rotate every 10 min) |
 
 ## Features
 

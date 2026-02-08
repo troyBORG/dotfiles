@@ -1,0 +1,6 @@
+[Unit]
+Description=Set random wallpapers per monitor (Plasma)
+
+[Service]
+Type=oneshot
+ExecStart=/home/troyborg/dotfiles/scripts/random-wallpapers.sh

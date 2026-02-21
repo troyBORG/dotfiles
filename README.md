@@ -57,7 +57,19 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    cp ~/dotfiles/config/starship/starship.toml ~/.config/starship.toml
    ```
 
-5. **Install Konsole profile (optional):**
+5. **Install scripts (core):**
+   ```bash
+   mkdir -p ~/.local/bin
+   cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
+   cp ~/dotfiles/scripts/gpu-load.sh ~/.local/bin/gpu-load.sh
+   chmod +x ~/.local/bin/media-info.sh
+   chmod +x ~/.local/bin/gpu-load.sh
+   ```
+
+   <details>
+   <summary><strong>Optional: Konsole, KDE theme, ZFS/screenshot/wallpaper scripts</strong></summary>
+
+   **Konsole profile:**
    ```bash
    mkdir -p ~/.local/share/konsole ~/.config
    cp ~/dotfiles/config/konsole/"Troy Theme.profile" ~/.local/share/konsole/
@@ -66,56 +78,40 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    ```
    Then open Konsole settings and set "Troy Theme" as your default profile.
 
-6. **Install KDE theme configuration (optional):**
-   
-   **Option A: Install as a selectable color scheme (Recommended):**
+   **KDE theme (Option A - color scheme):**
    ```bash
    mkdir -p ~/.local/share/color-schemes
    cp ~/dotfiles/config/kde/TroyGreen.colors ~/.local/share/color-schemes/
    ```
-   Then open KDE System Settings → Appearance → Colors and select "Troy Green" from the list.
-   
-   **Option B: Install by copying config files directly:**
+   Then KDE System Settings → Appearance → Colors → "Troy Green".
+
+   **KDE theme (Option B - direct config):**
    ```bash
    cp ~/dotfiles/config/kde/kdeglobals ~/.config/kdeglobals
    cp ~/dotfiles/config/kde/plasmarc ~/.config/plasmarc
    ```
-   Note: This config uses the CachyOS-Nord look-and-feel package. You may need to install it or adjust the `LookAndFeelPackage` setting in `kdeglobals` to match your installed theme. The theme uses a green accent color and breeze-dark icons.
+   Note: Uses CachyOS-Nord look-and-feel; adjust `LookAndFeelPackage` in `kdeglobals` if needed.
 
-7. **Install scripts:**
+   **ZFS Rollback Script:**
    ```bash
-   mkdir -p ~/.local/bin
-   cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
-   cp ~/dotfiles/scripts/gpu-load.sh ~/.local/bin/gpu-load.sh
-   chmod +x ~/.local/bin/media-info.sh
-   chmod +x ~/.local/bin/gpu-load.sh
-   ```
-   
-   **Optional - ZFS Rollback Script:**
-   ```bash
-   # Add to PATH or create symlink
    sudo ln -s ~/dotfiles/scripts/zfs-rollback.sh /usr/local/bin/zfs-rollback
-   # Or add to your shell config: export PATH="$HOME/dotfiles/scripts:$PATH"
    ```
-   
-   **Optional - Screenshot Cropping Script:**
+
+   **Screenshot Cropping Script:**
    ```bash
    chmod +x ~/dotfiles/scripts/crop_screenshot.sh
-   # Add to PATH or create symlink
    sudo ln -s ~/dotfiles/scripts/crop_screenshot.sh /usr/local/bin/crop-screenshot
-   # Or add to your shell config: export PATH="$HOME/dotfiles/scripts:$PATH"
    ```
-   
-   **Optional - Automatic Snapshot Cleanup:**
+
+   **Automatic Snapshot Cleanup:**
    ```bash
-   # Set up weekly automatic cleanup (keeps last 14 days of snapshots)
    sudo cp ~/dotfiles/scripts/zfs-pacman-snapshot-cleanup.service /etc/systemd/system/
    sudo cp ~/dotfiles/scripts/zfs-pacman-snapshot-cleanup.timer /etc/systemd/system/
    sudo systemctl daemon-reload
    sudo systemctl enable --now zfs-pacman-snapshot-cleanup.timer
    ```
 
-   **Optional - Random wallpapers (Plasma 6, per-monitor):**
+   **Random wallpapers (Plasma 6, per-monitor):**
    ```bash
    mkdir -p ~/.config/systemd/user
    cp ~/dotfiles/scripts/random-wallpapers.service ~/.config/systemd/user/
@@ -123,9 +119,11 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    systemctl --user daemon-reload
    systemctl --user enable --now random-wallpapers.timer
    ```
-   Uses Plasma’s DBus scripting API (per-monitor; `plasma-apply-wallpaperimage` has no per-output option). Requires `qdbus6` (or `qdbus-qt6`/`qdbus`) and image dirs. **Setup-specific:** edit the script’s directory paths and screen indices (`LEFT_INDEX`/`RIGHT_INDEX`); on another machine (e.g. laptop) the paths or screen order will differ. Runs 2 minutes after login and every 10 minutes.
+   Edit script paths and `LEFT_INDEX`/`RIGHT_INDEX` for your setup. Runs 2 min after login and every 10 min.
 
-8. **Initialize Starship in your shell:**
+   </details>
+
+6. **Initialize Starship in your shell:**
    
    For **Fish shell** (add to `~/.config/fish/config.fish`):
    ```fish
@@ -142,7 +140,8 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    eval "$(starship init zsh)"
    ```
 
-## File Locations
+<details>
+<summary><strong>📁 File locations</strong></summary>
 
 ### Configuration Files
 
@@ -168,14 +167,16 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
 | `scripts/crop_screenshot.sh` | `~/dotfiles/scripts/crop_screenshot.sh` (or add to PATH) |
 | `scripts/check-arc-cache.sh` | `~/dotfiles/scripts/check-arc-cache.sh` (or add to PATH) |
-| `scripts/kill-wlx-overlay.sh` | `~/dotfiles/scripts/kill-wlx-overlay.sh` (or add to PATH) |
 | `scripts/zfs-pacman-snapshot-cleanup.service` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` (for automatic pacman snapshot cleanup) |
 | `scripts/zfs-pacman-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.timer` (for automatic pacman snapshot cleanup) |
 | `scripts/random-wallpapers.sh` | `~/dotfiles/scripts/random-wallpapers.sh` (used by user timer) |
 | `scripts/random-wallpapers.service` | `~/.config/systemd/user/random-wallpapers.service` (Plasma per-monitor wallpapers) |
 | `scripts/random-wallpapers.timer` | `~/.config/systemd/user/random-wallpapers.timer` (rotate every 10 min) |
 
-## Features
+</details>
+
+<details>
+<summary><strong>✨ Features</strong></summary>
 
 ### Fastfetch
 - System information display with custom layout
@@ -284,15 +285,6 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
 
 Check compression: `zfs get -r -t filesystem,volume compression,compressratio zpcachyos m2_4tb`
 
-#### `kill-wlx-overlay.sh`
-Kill and restart wlx-overlay-s VR overlay helper
-- **Kill stuck processes**: Finds and terminates any running `wlx-overlay-s` processes
-- **Auto-restart**: Automatically restarts with `wlx-overlay-s --replace` after killing
-- **Graceful shutdown**: Tries SIGTERM first, then SIGKILL if needed
-- **Usage**: `./kill-wlx-overlay.sh` - Double-click the desktop shortcut or run from terminal
-- Useful when the overlay gets stuck or needs to be restarted after VR runtime changes
-
-
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:
 
@@ -312,7 +304,10 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 
 **Note:** This cleanup timer only manages `pacman-pre-*` snapshots. The `znap_*` snapshots created by `zfs-auto-snapshot` (hourly/daily/weekly/monthly) are managed separately by their respective timers and have their own retention policies. Use `apply-zfs-snapshot-retention.sh` to configure retention for `zfs-auto-snapshot` snapshots.
 
-## Dependencies
+</details>
+
+<details>
+<summary><strong>📦 Dependencies</strong></summary>
 
 - `fastfetch` - [Installation](https://github.com/fastfetch-cli/fastfetch)
 - `starship` - [Installation](https://starship.rs/guide/#%F0%9F%9A%80-installation)
@@ -323,7 +318,10 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 - `ffmpeg` - Image/video processing tools (for `crop_screenshot.sh` script)
 - `arc_summary` - ZFS ARC statistics tool (comes with zfs-utils package, for `check-arc-cache.sh`)
 
-## Customization
+</details>
+
+<details>
+<summary><strong>🎨 Customization</strong></summary>
 
 ### Starship Colors
 The Starship config uses the Catppuccin Mocha palette. To change colors, edit `~/.config/starship.toml` and modify the `[palettes.catppuccin_mocha]` section.
@@ -342,6 +340,8 @@ The KDE theme configuration includes a custom "Troy Green" color scheme with a g
 **As a color scheme:** Install `TroyGreen.colors` to `~/.local/share/color-schemes/` and select it from KDE System Settings → Appearance → Colors.
 
 **Direct config:** The `kdeglobals` file contains color scheme definitions and the `plasmarc` file contains wallpaper settings (sanitized in the repository). The config uses the CachyOS-Nord look-and-feel package and breeze-dark icons. To customize, edit these files or use KDE System Settings to modify and then copy the updated files back to the repository.
+
+</details>
 
 ## License
 

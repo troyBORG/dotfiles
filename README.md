@@ -280,8 +280,11 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
 **Pools:** `zpcachyos` (root), `m2_4tb` (Steam/ai_models/downloads/misc). All datasets use `compression=lz4`.
 
 **Resonite datasets on zpcachyos:**
-- **Cache** (`zpcachyos/ROOT/cos/home/resonite-cache`): `recordsize=1M`, `logbias=throughput`, `primarycache=metadata`, `atime=on`. Compressratio ~1.15x.
-- **Data/DB** (`zpcachyos/ROOT/cos/home/resonite-data`, DB at `~/Resonite/Data/Data.litedb`): `recordsize=16K`, `logbias=latency`, `atime=on`. Compressratio ~1.22x.
+- **Cache** (`zpcachyos/ROOT/cos/home/resonite-cache`): `recordsize=1M`, `logbias=throughput`, `primarycache=metadata`, `atime=on`. Compressratio ~1.14x.
+- **Data/DB** (`zpcachyos/ROOT/cos/home/resonite-data`, DB at `~/Resonite/Data/Data.litedb`): `recordsize=16K`, `logbias=latency`, `atime=on`. Compressratio ~1.09x.
+
+Turn off auto-snapshots on these (and other volatile datasets like cache/yay/Downloads) so they don't bloat `znap_*` snapshots:  
+`sudo zfs set com.sun:auto-snapshot=false zpcachyos/ROOT/cos/home/resonite-cache zpcachyos/ROOT/cos/home/resonite-data`
 
 Check compression: `zfs get -r -t filesystem,volume compression,compressratio zpcachyos m2_4tb`
 

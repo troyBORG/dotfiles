@@ -254,6 +254,9 @@ show_conclusion() {
     echo -e "${CYAN}🔍 To see detailed ARC breakdown:${NC}"
     echo "   $ARC_SUMMARY_CMD"
     echo ""
+    echo -e "${CYAN}📁 Cache dataset usage (REFER/USED) and primarycache tuning:${NC}"
+    echo "   $(dirname "$0")/check-zfs-cache-usage.sh  (add --suggest for tuning)"
+    echo ""
 }
 
 # Main

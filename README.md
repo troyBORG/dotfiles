@@ -28,36 +28,115 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 - `nvidia-smi` or AMD GPU tools - For GPU load script (optional)
 - `ffmpeg` - For screenshot cropping script (optional)
 
-### Setup
+### Dependencies (how to get them)
 
-1. **Clone this repository:**
+Not in all package managers (e.g. Ubuntu). Use these to install or copy configs to another machine:
+
+- **fastfetch** — [GitHub repo](https://github.com/fastfetch-cli/fastfetch) (releases / build from source). CachyOS/Arch: `pacman -S fastfetch`
+- **starship** — `curl -sS https://starship.rs/install.sh | sh` or binary from the [Starship releases](https://github.com/starship/starship/releases)
+- **dbus-send** — Usually with D-Bus (system package)
+- **nvidia-smi** — With NVIDIA drivers; **rocm-smi** — AMD ROCm (optional for GPU script)
+- **zfs** — `zfs-utils` / distro package (for ZFS scripts; requires ZFS)
+- **ffmpeg** — Distro package (for `crop_screenshot.sh`)
+- **arc_summary** / **zarcsummary** — From `zfs-utils` (for `check-arc-cache.sh`)
+
+<details>
+<summary><strong>⚡ Quick reference — copy-paste setup</strong></summary>
+
+Paste this whole block into a terminal on a new machine. It will clone the repo, install Fastfetch + Starship, copy configs, hook Starship into Fish/Bash/Zsh (whichever you have), and install the media/GPU scripts.
+
+```bash
+set -e
+
+# Clone dotfiles
+git clone https://github.com/troyBORG/dotfiles.git ~/dotfiles
+
+# Fastfetch config
+mkdir -p ~/.config/fastfetch ~/.config
+cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
+
+# Starship binary + config (official installer; safe to rerun)
+curl -sS https://starship.rs/install.sh | sh
+cp ~/dotfiles/config/starship/starship.toml ~/.config/starship.toml
+
+# Starship init (run for all common shells; ignore errors if shell/config doesn't exist)
+if command -v fish >/dev/null 2>&1; then
+  mkdir -p ~/.config/fish
+  if ! grep -q "starship init fish" ~/.config/fish/config.fish 2>/dev/null; then
+    echo 'starship init fish | source' >> ~/.config/fish/config.fish
+  fi
+fi
+
+if command -v bash >/dev/null 2>&1; then
+  if ! grep -q "starship init bash" ~/.bashrc 2>/dev/null; then
+    echo 'eval "$(starship init bash)"' >> ~/.bashrc
+  fi
+fi
+
+if command -v zsh >/dev/null 2>&1; then
+  if ! grep -q "starship init zsh" ~/.zshrc 2>/dev/null; then
+    echo 'eval "$(starship init zsh)"' >> ~/.zshrc
+  fi
+fi
+
+# Optional: media/GPU scripts for Starship prompt
+mkdir -p ~/.local/bin
+cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
+cp ~/dotfiles/scripts/gpu-load.sh ~/.local/bin/gpu-load.sh
+chmod +x ~/.local/bin/media-info.sh ~/.local/bin/gpu-load.sh
+
+echo
+echo "Done. Restart your shell (or open a new terminal) to see the Starship prompt."
+```
+
+<div align="center">│ end of quick reference │</div>
+
+</details>
+
+### Setup (step by step)
+
+1. **Clone this repository**
    ```bash
    git clone https://github.com/troyBORG/dotfiles.git ~/dotfiles
    ```
 
-2. **Install Fastfetch config:**
+2. **Install Fastfetch config**
    ```bash
    mkdir -p ~/.config/fastfetch
    cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
    ```
-   **Note:** Fastfetch only reads `~/.config/fastfetch/config.jsonc`. After any edit to the config in dotfiles, copy again so fastfetch (e.g. `fastfetch` / your fastshow alias) uses the new config:
-   ```bash
-   cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc
-   ```
+   **Note:** Fastfetch only reads `~/.config/fastfetch/config.jsonc`. After any edit in dotfiles, copy again:  
+   `cp ~/dotfiles/config/fastfetch/config.jsonc ~/.config/fastfetch/config.jsonc`
 
-3. **Install Starship binary:**
+3. **Install Starship (binary + config)**
    ```bash
    curl -sS https://starship.rs/install.sh | sh
-   ```
-   To update Starship later, rerun the above script. It will replace the current version without touching Starship's configuration.
-
-4. **Install Starship config:**
-   ```bash
    mkdir -p ~/.config
    cp ~/dotfiles/config/starship/starship.toml ~/.config/starship.toml
    ```
+   To update Starship later, rerun the install script. It replaces the binary without touching config.
 
-5. **Install scripts (core):**
+   **That’s all for a minimal setup.** The prompt won’t show music/GPU until you add the scripts below and have Starship init in your shell.
+
+4. **Initialize Starship in your shell** (required for the prompt)
+
+   **Fish** (add to `~/.config/fish/config.fish`):
+   ```fish
+   starship init fish | source
+   ```
+
+   **Bash** (add to `~/.bashrc`):
+   ```bash
+   eval "$(starship init bash)"
+   ```
+
+   **Zsh** (add to `~/.zshrc`):
+   ```zsh
+   eval "$(starship init zsh)"
+   ```
+
+5. **Media & GPU scripts (optional)** — powers the Starship music and GPU modules. Install and load in one place:
+
    ```bash
    mkdir -p ~/.local/bin
    cp ~/dotfiles/scripts/media-info.sh ~/.local/bin/media-info.sh
@@ -65,26 +144,27 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    chmod +x ~/.local/bin/media-info.sh
    chmod +x ~/.local/bin/gpu-load.sh
    ```
+   Ensure `~/.local/bin` is in your PATH (it usually is). Starship will call these automatically once init is in your shell (step 4).
+
+6. **Optional: Konsole, KDE theme, ZFS/screenshot/wallpaper scripts** <a id="optional-konsole-kde-zfs-etc"></a>
 
    <details>
-   <summary><strong>Optional: Konsole, KDE theme, ZFS/screenshot/wallpaper scripts</strong></summary>
+   <summary>Bat fix (Fish/Zsh), Konsole, KDE, ZFS, wallpapers</summary>
 
    **Fish (default): make cat/less/more use bat correctly:**  
-   CachyOS Fish config (`/usr/share/cachyos-fish-config/cachyos-config.fish`) gives you **eza** for ls/la/ll/lt, **grep --color=auto**, and bat for man. Your own `config.fish` may add **cat→bat**, **less→bat**, **find→fd**, **grep→rg**. If `cat` or `less` fail with `error: unexpected argument '-R' found`, the cause is **bat's config**: `pager = less -RF` in `~/.config/bat/config` makes bat treat `-R` as its own flag.  
-   Source this snippet so **cat**, **less**, and **more** run bat without loading that config (plain cat, bat for less/more):
+   CachyOS Fish config gives you **eza**, **grep --color=auto**, and bat for man. If you add **cat→bat** / **less→bat** and hit `error: unexpected argument '-R' found`, the cause is **bat's config**: `pager = less -RF` in `~/.config/bat/config`. Source this so **cat**, **less**, **more** use bat without that config:
 
-   Add to your `~/.config/fish/config.fish` (and remove any `alias cat=...` / `alias less=...` / `alias more=...` so these win):
+   Add to `~/.config/fish/config.fish` (and remove any `alias cat=...` / `alias less=...` / `alias more=...` so these win):
    ```fish
    if test -f ~/dotfiles/config/fish/cat-bat-fix.fish
      source ~/dotfiles/config/fish/cat-bat-fix.fish
    end
    ```
-   The snippet defines functions for `cat`, `less`, and `more` that call bat with `BAT_CONFIG_PATH=/dev/null`, so commands parse correctly and you don't need `command cat` or `/usr/bin/cat`.  
-   **Optional (fix root cause):** In `~/.config/bat/config`, change `pager = less -RF` to `pager = less -F` so bat's own pager config doesn't inject `-R`.
+   **Optional (fix root cause):** In `~/.config/bat/config`, change `pager = less -RF` to `pager = less -F`.
 
-   **Other colorful replacements (eza, fd, rg):** None of them have the same "config injects bad args" issue as bat. **eza** and **fd** don't use a config that gets parsed as CLI flags, so ls/la/ll/tree and find→fd are safe. **grep→rg** can cause errors in different situations: ripgrep uses **-E** for encoding (grep uses it for extended regex) and doesn't support **-R**. So `grep -E 'pattern'` or `grep -R pattern dir` in an interactive Fish session become `rg -E ...` / `rg -R ...` and can fail. Scripts in this repo use `#!/bin/bash` and call `grep -E`, so they get real grep when run as `./script`; only interactive use of `grep -E` / `grep -R` is affected. If you hit that, use `command grep` or call `/usr/bin/grep` when you need grep-style flags.
+   **Other (eza, fd, rg):** eza/fd don’t have the bat-style flag issue. **grep→rg** can break `grep -E` / `grep -R` in Fish; use `command grep` when needed.
 
-   **Zsh:** Same fix — add to `~/.zshrc`:
+   **Zsh:** Add to `~/.zshrc`:
    ```bash
    [[ -f ~/dotfiles/config/zsh/cat-bat-fix.zsh ]] && source ~/dotfiles/config/zsh/cat-bat-fix.zsh
    ```
@@ -97,7 +177,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    cp ~/dotfiles/config/konsole/DarkOneNuanced.colorscheme ~/.local/share/konsole/
    cp ~/dotfiles/config/konsole/konsolerc ~/.config/konsolerc
    ```
-   Then open Konsole settings and set "Troy Theme" as your default profile.
+   Then set "Troy Theme" as default in Konsole settings.
 
    **KDE theme (Option A - color scheme):**
    ```bash
@@ -144,23 +224,6 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
    </details>
 
-6. **Initialize Starship in your shell:**
-   
-   For **Fish shell** (add to `~/.config/fish/config.fish`):
-   ```fish
-   starship init fish | source
-   ```
-   
-   For **Bash** (add to `~/.bashrc`):
-   ```bash
-   eval "$(starship init bash)"
-   ```
-   
-   For **Zsh** (add to `~/.zshrc`):
-   ```zsh
-   eval "$(starship init zsh)"
-   ```
-
 <details>
 <summary><strong>📁 File locations</strong></summary>
 
@@ -200,35 +263,54 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 <details>
 <summary><strong>✨ Features</strong></summary>
 
-### Fastfetch
+<details>
+<summary><strong>Fastfetch</strong></summary>
+
 - System information display with custom layout
 - GPU temperature and VRAM usage (via `gpu-load.sh`)
 - CPU temperature
 - Storage usage with progress bars (disk module shows all mounts including ZFS, same style as RAM/swap)
 - Custom ASCII art logo
 
-### Starship
+</details>
+
+<details>
+<summary><strong>Starship</strong></summary>
+
 - Catppuccin Mocha color scheme
 - Powerline-style prompt with colored segments
 - Git status indicators
 - Custom music module (shows currently playing track from any MPRIS player)
 - Custom GPU load module (NVIDIA/AMD support)
 
-### Konsole
+</details>
+
+<details>
+<summary><strong>Konsole</strong></summary>
+
 - "Troy Theme" profile with DarkOneNuanced color scheme
 - Configured with Hack font (Nerd Font compatible)
 - Optimized for terminal usage with custom colors
 
-### KDE
+</details>
+
+<details>
+<summary><strong>KDE</strong></summary>
+
 - Custom color scheme with green accent color (RGB: 61,212,37)
 - CachyOS-Nord look-and-feel package
 - breeze-dark icon theme
 - Custom window manager colors
 - Configured file dialog settings
 
-### Scripts
+</details>
 
-#### `media-info.sh`
+<details>
+<summary><strong>Scripts</strong></summary>
+
+<details>
+<summary><strong>media-info.sh</strong></summary>
+
 Displays currently playing media from any MPRIS-compatible player (Spotify, VLC, YouTube, Twitch, Netflix, etc.)
 - Works with any MPRIS player (music players and browsers)
 - Shows artist and title for music, or video title for streaming services
@@ -236,14 +318,22 @@ Displays currently playing media from any MPRIS-compatible player (Spotify, VLC,
 - Automatically removes platform names from titles
 - Automatically hides when no media is playing
 
-#### `gpu-load.sh`
+</details>
+
+<details>
+<summary><strong>gpu-load.sh</strong></summary>
+
 Displays GPU utilization percentage
 - **NVIDIA**: Uses `nvidia-smi`
 - **AMD (ROCm)**: Uses `rocm-smi`
 - **AMD (open-source)**: Falls back to sysfs (`/sys/class/drm/card*/device/gpu_busy_percent`)
 - Automatically detects GPU vendor
 
-#### `zfs-rollback.sh`
+</details>
+
+<details>
+<summary><strong>zfs-rollback.sh</strong></summary>
+
 ZFS snapshot management and rollback helper for systems using ZFS with automatic pacman snapshots
 - **List snapshots**: `zfs-rollback list` - View all pacman snapshots
 - **Latest snapshot**: `zfs-rollback latest` - Show the most recent snapshot
@@ -254,7 +344,11 @@ ZFS snapshot management and rollback helper for systems using ZFS with automatic
 - Includes safety prompts before destructive operations
 - Designed for CachyOS/Arch Linux with ZFS root filesystem
 
-#### `apply-zfs-snapshot-retention.sh`
+</details>
+
+<details>
+<summary><strong>apply-zfs-snapshot-retention.sh</strong></summary>
+
 Flexible ZFS auto-snapshot retention policy management for `zfs-auto-snapshot`
 - **Dynamic configuration**: Generates systemd service overrides on-the-fly with any retention values
 - **Usage**: `./apply-zfs-snapshot-retention.sh [MONTHLY] [DAILY] [WEEKLY]`
@@ -269,7 +363,11 @@ Flexible ZFS auto-snapshot retention policy management for `zfs-auto-snapshot`
 - **No static files needed**: Generates configuration dynamically
 - Manages `znap_*` snapshots created by `zfs-auto-snapshot` (hourly/daily/weekly/monthly)
 
-#### `check-boot-space.sh`
+</details>
+
+<details>
+<summary><strong>check-boot-space.sh</strong></summary>
+
 Monitor `/boot` and `/boot/efi` partition space to prevent running out of space during kernel updates
 - **Quick check**: `check-boot-space.sh` - Shows space usage, largest files, and installed kernels
 - **Warnings**: Alerts when space usage exceeds 60% (warning) or 80% (critical)
@@ -277,7 +375,11 @@ Monitor `/boot` and `/boot/efi` partition space to prevent running out of space 
 - **Recommendations**: Provides cleanup suggestions when needed
 - Helps prevent the "boot partition full" issue during kernel updates
 
-#### `crop_screenshot.sh`
+</details>
+
+<details>
+<summary><strong>crop_screenshot.sh</strong></summary>
+
 FFmpeg utility to split tall screenshots into chunks
 - **Auto-detection**: Automatically detects image dimensions
 - **Smart chunking**: Auto-calculates optimal chunk height to create ~12 chunks
@@ -285,7 +387,11 @@ FFmpeg utility to split tall screenshots into chunks
 - **Usage**: `./crop_screenshot.sh image.png [chunk_height]`
 - Useful for processing very tall screenshots or images that are too large to handle as a single file
 
-#### `check-arc-cache.sh`
+</details>
+
+<details>
+<summary><strong>check-arc-cache.sh</strong></summary>
+
 ZFS ARC cache analysis tool to see what datasets are likely cached
 - **ARC statistics**: Shows total ARC size, data cache size, and cache hit rate
 - **Dataset analysis**: Calculates which datasets are likely cached by comparing sizes to ARC
@@ -297,7 +403,11 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
   - `./check-arc-cache.sh --brief` - Brief output format
 - Helps identify what files are being cached by ZFS ARC (useful for understanding why RAM usage is high)
 
-#### `check-zfs-cache-usage.sh`
+</details>
+
+<details>
+<summary><strong>check-zfs-cache-usage.sh</strong></summary>
+
 ZFS cache-dataset usage and ARC tuning helper
 - **Usage report**: Shows referenced, used, and snapshot space for cache-like datasets (names matching cache, varcache, yay-cache, downloads)
 - **primarycache tuning**: Suggests `primarycache=metadata` so ARC keeps hot data instead of bulk caches (metadata stays cached for fast ls/find; file contents read from disk)
@@ -307,7 +417,12 @@ ZFS cache-dataset usage and ARC tuning helper
   - `./check-zfs-cache-usage.sh --all-datasets` - Include all datasets under home/ROOT, not just *cache*
 - Complements `check-arc-cache.sh` for understanding and tuning ARC vs cache datasets
 
-### ZFS Pools & Resonite Tuning
+</details>
+
+</details>
+
+<details>
+<summary><strong>ZFS Pools & Resonite Tuning</strong></summary>
 
 **Pools:** `zpcachyos` (root), `m2_4tb` (Steam/ai_models/downloads/misc). All datasets use `compression=lz4`.
 
@@ -319,6 +434,16 @@ Turn off auto-snapshots on these (and other volatile datasets like cache/yay/Dow
 `sudo zfs set com.sun:auto-snapshot=false zpcachyos/ROOT/cos/home/resonite-cache zpcachyos/ROOT/cos/home/resonite-data`
 
 Check compression: `zfs get -r -t filesystem,volume compression,compressratio zpcachyos m2_4tb`
+
+<details>
+<summary><strong>Memory & ZFS tuning (optional)</strong></summary>
+
+- **primarycache:** Already set: large cache-style datasets use `primarycache=metadata` or `none` so ARC keeps hot data (Resonite Data, code) instead of bulk caches. No change needed unless you add new large read-once datasets.
+- **ARC:** If you ever see memory contention, you can lower `zfs_arc_max` (e.g. to 24G) to reserve RAM for apps; with ~47G free, no action needed now.
+- **zram:** If swap-in latency causes hitches, try a faster compression algorithm (e.g. `lzo-rle` or `lz4`) via `/sys/block/zram0/comp_algorithm` (then re-mkswap/swapon). Skip L2ARC on all-NVMe systems unless you measure a real miss penalty.
+- **Monitoring:** Use `check-arc-cache.sh` and `check-zfs-cache-usage.sh` to observe ARC and cache-dataset usage; `zarcsummary` or `arc_summary` for full ARC stats.
+
+</details>
 
 **Automatic Cleanup Setup:**
 Snapshots will accumulate over time and won't auto-cleanup by default. To set up automatic weekly cleanup:
@@ -340,18 +465,6 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 **Note:** This cleanup timer only manages `pacman-pre-*` snapshots. The `znap_*` snapshots created by `zfs-auto-snapshot` (hourly/daily/weekly/monthly) are managed separately by their respective timers and have their own retention policies. Use `apply-zfs-snapshot-retention.sh` to configure retention for `zfs-auto-snapshot` snapshots.
 
 </details>
-
-<details>
-<summary><strong>📦 Dependencies</strong></summary>
-
-- `fastfetch` - [Installation](https://github.com/fastfetch-cli/fastfetch)
-- `starship` - [Installation](https://starship.rs/guide/#%F0%9F%9A%80-installation)
-- `dbus-send` - Usually comes with D-Bus (system package)
-- `nvidia-smi` - Comes with NVIDIA drivers (for NVIDIA GPU load)
-- `rocm-smi` - AMD ROCm tools (optional, for AMD GPU load)
-- `zfs` - ZFS filesystem tools (for `zfs-rollback.sh`, `check-arc-cache.sh`, and `check-zfs-cache-usage.sh`, requires ZFS root filesystem)
-- `ffmpeg` - Image/video processing tools (for `crop_screenshot.sh` script)
-- `arc_summary` or `zarcsummary` - ZFS ARC statistics (zfs-utils; script uses whichever is available for `check-arc-cache.sh`)
 
 </details>
 

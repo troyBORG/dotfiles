@@ -69,6 +69,27 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
    <details>
    <summary><strong>Optional: Konsole, KDE theme, ZFS/screenshot/wallpaper scripts</strong></summary>
 
+   **Fish (default): make cat/less/more use bat correctly:**  
+   CachyOS Fish config (`/usr/share/cachyos-fish-config/cachyos-config.fish`) gives you **eza** for ls/la/ll/lt, **grep --color=auto**, and bat for man. Your own `config.fish` may add **cat→bat**, **less→bat**, **find→fd**, **grep→rg**. If `cat` or `less` fail with `error: unexpected argument '-R' found`, the cause is **bat's config**: `pager = less -RF` in `~/.config/bat/config` makes bat treat `-R` as its own flag.  
+   Source this snippet so **cat**, **less**, and **more** run bat without loading that config (plain cat, bat for less/more):
+
+   Add to your `~/.config/fish/config.fish` (and remove any `alias cat=...` / `alias less=...` / `alias more=...` so these win):
+   ```fish
+   if test -f ~/dotfiles/config/fish/cat-bat-fix.fish
+     source ~/dotfiles/config/fish/cat-bat-fix.fish
+   end
+   ```
+   The snippet defines functions for `cat`, `less`, and `more` that call bat with `BAT_CONFIG_PATH=/dev/null`, so commands parse correctly and you don't need `command cat` or `/usr/bin/cat`.  
+   **Optional (fix root cause):** In `~/.config/bat/config`, change `pager = less -RF` to `pager = less -F` so bat's own pager config doesn't inject `-R`.
+
+   **Other colorful replacements (eza, fd, rg):** None of them have the same "config injects bad args" issue as bat. **eza** and **fd** don't use a config that gets parsed as CLI flags, so ls/la/ll/tree and find→fd are safe. **grep→rg** can cause errors in different situations: ripgrep uses **-E** for encoding (grep uses it for extended regex) and doesn't support **-R**. So `grep -E 'pattern'` or `grep -R pattern dir` in an interactive Fish session become `rg -E ...` / `rg -R ...` and can fail. Scripts in this repo use `#!/bin/bash` and call `grep -E`, so they get real grep when run as `./script`; only interactive use of `grep -E` / `grep -R` is affected. If you hit that, use `command grep` or call `/usr/bin/grep` when you need grep-style flags.
+
+   **Zsh:** Same fix — add to `~/.zshrc`:
+   ```bash
+   [[ -f ~/dotfiles/config/zsh/cat-bat-fix.zsh ]] && source ~/dotfiles/config/zsh/cat-bat-fix.zsh
+   ```
+   Or: `alias cat='BAT_CONFIG_PATH=/dev/null bat --plain --paging=never'`
+
    **Konsole profile:**
    ```bash
    mkdir -p ~/.local/share/konsole ~/.config
@@ -319,7 +340,7 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 - `rocm-smi` - AMD ROCm tools (optional, for AMD GPU load)
 - `zfs` - ZFS filesystem tools (for `zfs-rollback.sh` and `check-arc-cache.sh` scripts, requires ZFS root filesystem)
 - `ffmpeg` - Image/video processing tools (for `crop_screenshot.sh` script)
-- `arc_summary` - ZFS ARC statistics tool (comes with zfs-utils package, for `check-arc-cache.sh`)
+- `arc_summary` or `zarcsummary` - ZFS ARC statistics (zfs-utils; script uses whichever is available for `check-arc-cache.sh`)
 
 </details>
 

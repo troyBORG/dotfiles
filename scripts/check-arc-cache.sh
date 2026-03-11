@@ -34,12 +34,20 @@ Examples:
 EOF
 }
 
-check_dependencies() {
-    if ! command -v arc_summary &> /dev/null; then
-        echo -e "${RED}Error: arc_summary not found. Install zfs-utils package.${NC}"
+# Prefer arc_summary (e.g. FreeBSD, some distros); fall back to zarcsummary (Arch/CachyOS zfs-utils)
+set_arc_summary_cmd() {
+    if command -v arc_summary &> /dev/null; then
+        ARC_SUMMARY_CMD="arc_summary"
+    elif command -v zarcsummary &> /dev/null; then
+        ARC_SUMMARY_CMD="zarcsummary"
+    else
+        echo -e "${RED}Error: arc_summary / zarcsummary not found. Install zfs-utils package.${NC}"
         exit 1
     fi
-    
+}
+
+check_dependencies() {
+    set_arc_summary_cmd
     if ! command -v zfs &> /dev/null; then
         echo -e "${RED}Error: zfs not found.${NC}"
         exit 1
@@ -47,13 +55,13 @@ check_dependencies() {
 }
 
 get_arc_data_size() {
-    # Extract GiB value from "96.7 %   27.2 GiB" format (second number before GiB)
-    arc_summary 2>/dev/null | grep "Data size:" | awk '{for(i=1;i<=NF;i++) if($i == "GiB") {print $(i-1); exit}}'
+    # Extract GiB value (works with both arc_summary and zarcsummary output)
+    $ARC_SUMMARY_CMD 2>/dev/null | grep "Data size:" | head -1 | awk '{for(i=1;i<=NF;i++) if($i == "GiB") {print $(i-1); exit}}'
 }
 
 get_arc_total_size() {
-    # Extract GiB value from "47.2 %   29.1 GiB" format (second number before GiB)
-    arc_summary 2>/dev/null | grep "Current size:" | awk '{for(i=1;i<=NF;i++) if($i == "GiB") {print $(i-1); exit}}'
+    # Extract GiB value (works with both arc_summary and zarcsummary output)
+    $ARC_SUMMARY_CMD 2>/dev/null | grep "Current size:" | head -1 | awk '{for(i=1;i<=NF;i++) if($i == "GiB") {print $(i-1); exit}}'
 }
 
 get_arc_hit_rate() {
@@ -244,7 +252,7 @@ show_conclusion() {
     echo "   • If a dataset size ≈ ARC data size, it's very likely cached"
     echo ""
     echo -e "${CYAN}🔍 To see detailed ARC breakdown:${NC}"
-    echo "   arc_summary"
+    echo "   $ARC_SUMMARY_CMD"
     echo ""
 }
 

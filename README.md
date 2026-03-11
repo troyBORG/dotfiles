@@ -188,6 +188,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 | `scripts/check-boot-space.sh` | `~/dotfiles/scripts/check-boot-space.sh` (or add to PATH) |
 | `scripts/crop_screenshot.sh` | `~/dotfiles/scripts/crop_screenshot.sh` (or add to PATH) |
 | `scripts/check-arc-cache.sh` | `~/dotfiles/scripts/check-arc-cache.sh` (or add to PATH) |
+| `scripts/check-zfs-cache-usage.sh` | `~/dotfiles/scripts/check-zfs-cache-usage.sh` (or add to PATH) |
 | `scripts/zfs-pacman-snapshot-cleanup.service` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.service` (for automatic pacman snapshot cleanup) |
 | `scripts/zfs-pacman-snapshot-cleanup.timer` | `/etc/systemd/system/zfs-pacman-snapshot-cleanup.timer` (for automatic pacman snapshot cleanup) |
 | `scripts/random-wallpapers.sh` | `~/dotfiles/scripts/random-wallpapers.sh` (used by user timer) |
@@ -296,6 +297,16 @@ ZFS ARC cache analysis tool to see what datasets are likely cached
   - `./check-arc-cache.sh --brief` - Brief output format
 - Helps identify what files are being cached by ZFS ARC (useful for understanding why RAM usage is high)
 
+#### `check-zfs-cache-usage.sh`
+ZFS cache-dataset usage and ARC tuning helper
+- **Usage report**: Shows referenced, used, and snapshot space for cache-like datasets (names matching cache, varcache, yay-cache, downloads)
+- **primarycache tuning**: Suggests `primarycache=metadata` so ARC keeps hot data instead of bulk caches (metadata stays cached for fast ls/find; file contents read from disk)
+- **Usage**:
+  - `./check-zfs-cache-usage.sh` - Report cache-dataset usage
+  - `./check-zfs-cache-usage.sh --suggest` - Print suggested `zfs set primarycache=metadata` commands (no changes made)
+  - `./check-zfs-cache-usage.sh --all-datasets` - Include all datasets under home/ROOT, not just *cache*
+- Complements `check-arc-cache.sh` for understanding and tuning ARC vs cache datasets
+
 ### ZFS Pools & Resonite Tuning
 
 **Pools:** `zpcachyos` (root), `m2_4tb` (Steam/ai_models/downloads/misc). All datasets use `compression=lz4`.
@@ -338,7 +349,7 @@ Snapshots will accumulate over time and won't auto-cleanup by default. To set up
 - `dbus-send` - Usually comes with D-Bus (system package)
 - `nvidia-smi` - Comes with NVIDIA drivers (for NVIDIA GPU load)
 - `rocm-smi` - AMD ROCm tools (optional, for AMD GPU load)
-- `zfs` - ZFS filesystem tools (for `zfs-rollback.sh` and `check-arc-cache.sh` scripts, requires ZFS root filesystem)
+- `zfs` - ZFS filesystem tools (for `zfs-rollback.sh`, `check-arc-cache.sh`, and `check-zfs-cache-usage.sh`, requires ZFS root filesystem)
 - `ffmpeg` - Image/video processing tools (for `crop_screenshot.sh` script)
 - `arc_summary` or `zarcsummary` - ZFS ARC statistics (zfs-utils; script uses whichever is available for `check-arc-cache.sh`)
 

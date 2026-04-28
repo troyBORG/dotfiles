@@ -95,13 +95,6 @@
     "temp": true
   },
   {
-    "type": "command",
-    "key": "├─󰾆",
-    "keyColor": "34",
-    "format": "{1}",
-    "text": "/home/troyborg/.local/bin/gpu-load.sh"
-  },
-  {
     "type": "sound",
     "key": "├─󰓃",
     "format": "{2}",

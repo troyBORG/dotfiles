@@ -99,7 +99,7 @@
     "key": "├─󰾆",
     "keyColor": "34",
     "format": "{1}",
-    "command": "/home/troyborg/.local/bin/gpu-load.sh"
+    "text": "/home/troyborg/.local/bin/gpu-load.sh"
   },
   {
     "type": "sound",
@@ -126,17 +126,27 @@
     "type": "disk",
     "key": "├─󰋊",
     "keyColor": "34",
+    "format": "{13} {1} / {2} ({3}) - {9} [{20}]",
     "percent": {
       "type": 3
     },
-    "hideFolders": "/mnt/4tb:/boot/efi:/efi"
+    "hideFolders": "/mnt/4tb:/boot/efi:/efi",
+    "hideFS": "zfs"
+  },
+  {
+    "type": "command",
+    "key": "├─󰋊",
+    "keyColor": "34",
+    "format": "{1}",
+    "splitLines": true,
+    "text": "bash -c 'command -v zpool >/dev/null 2>&1 || exit 1; zpool list -H -o name,alloc,size,cap | while read -r name alloc size cap; do pct=${cap%%%}; filled=$((pct / 10)); [ \"$filled\" -gt 10 ] && filled=10; [ \"$filled\" -lt 0 ] && filled=0; empty=$((10 - filled)); full=\"██████████\"; hollow=\"░░░░░░░░░░\"; bar=${full:0:filled}; rest=${hollow:0:empty}; if [ \"$pct\" -lt 50 ]; then c=\"\\033[32m\"; elif [ \"$pct\" -lt 80 ]; then c=\"\\033[33m\"; else c=\"\\033[31m\"; fi; printf \"[ %b%s ] %s / %s (%s) - zfs [%s]\\n\" \"${c}${bar}\\033[0m\" \"$rest\" \"$alloc\" \"$size\" \"$cap\" \"$name\"; done'"
   },
   {
     "type": "command",
     "key": "├─󰟀",
     "keyColor": "34",
     "format": "Boot: {1}",
-    "command": "bash -c '/home/troyborg/dotfiles/scripts/boot-space.sh'"
+    "text": "bash -c '/home/troyborg/dotfiles/scripts/boot-space.sh'"
   },
   {
     "type": "localip",

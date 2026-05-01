@@ -97,7 +97,7 @@
   {
     "type": "sound",
     "key": "├─󰓃",
-    "format": "{2}",
+    "format": "{name}",
     "keyColor": "34"
   },
   {

@@ -223,6 +223,13 @@ echo "Done. Restart your shell (or open a new terminal) to see the Starship prom
    ```
    Edit script paths and `LEFT_INDEX`/`RIGHT_INDEX` for your setup. Runs 2 min after login and every 10 min.
 
+   **Disable random wallpapers:**
+   ```bash
+   systemctl --user stop random-wallpapers.timer
+   systemctl --user disable random-wallpapers.timer
+   ```
+   Then set static wallpapers in **System Settings → Appearance → Wallpaper** (or right-click desktop → Configure Wallpaper). Re-enable with `systemctl --user enable --now random-wallpapers.timer`.
+
    </details>
 
 <details>

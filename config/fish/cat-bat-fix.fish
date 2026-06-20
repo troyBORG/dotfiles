@@ -1,15 +1,10 @@
-# Use bat for cat/less/more without loading ~/.config/bat/config. That config
-# often has "pager = less -RF", which makes bat see -R as its own flag and
-# error with "unexpected argument '-R' found". So we run bat with config
-# disabled; these wrappers then behave correctly.
+# Use bat for cat without loading ~/.config/bat/config.
+# Do NOT wrap less/more with bat. Other tools pass real less flags like -R.
+
 function cat
   BAT_CONFIG_PATH=/dev/null bat --plain --paging=never $argv
 end
 
-function less
-  BAT_CONFIG_PATH=/dev/null bat $argv
-end
-
-function more
-  BAT_CONFIG_PATH=/dev/null bat $argv
-end
+set -Ux PAGER /usr/bin/less
+set -Ux BAT_PAGER "/usr/bin/less -R"
+set -Ux MANPAGER "sh -c 'col -bx | /usr/bin/bat -l man -p'"

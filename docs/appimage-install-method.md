@@ -1,6 +1,6 @@
 # AppImage install method
 
-How I install AppImages on my desktop so they show up in the app menu and stay out of `~/Downloads`.
+How I install AppImages on my desktop so they show up in the app menu, in [fastfetch](https://github.com/fastfetch-cli/fastfetch), and stay out of `~/Downloads`.
 
 ## What we do
 
@@ -21,6 +21,14 @@ This layout matches how other apps on this machine are set up (for example `~/Ap
 | Binary | `~/Applications/` | One stable place for AppImages; no `sudo`, easy to back up |
 | Launcher | `~/.local/share/applications/*.desktop` | Shows up in the app menu, KRunner, and pinned taskbar entries |
 | Icons | `~/.local/share/icons/hicolor/` | Correct icon in the menu instead of a generic placeholder |
+
+### Fastfetch
+
+The `packages` module in my fastfetch config (`config/fastfetch/config.jsonc`) automatically counts AppImages. On Linux it scans `~/Applications/` and `~/AppImages/` for files ending in `.appimage` (case-insensitive).
+
+So moving an AppImage into `~/Applications/` is what makes it show up in the packages line, e.g. `3 (appimage), 25 (flatpak), 1680 (pacman)`. Files left in `~/Downloads` are invisible to fastfetch even if they have a `.desktop` entry.
+
+Right now that count is **3**: ocenaudio, Clone Hero, and YARC Launcher.
 
 We do **not** put AppImages in `/opt` or `/usr/local/bin` unless there is a good reason. User-owned paths keep updates simple: replace the file in `~/Applications/` and update the `.desktop` path if the filename changed.
 

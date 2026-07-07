@@ -2,7 +2,8 @@
 
 My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 
-<img width="1440" height="809" alt="image" src="https://github.com/user-attachments/assets/2486d897-dfae-4814-862f-aa2312ad9e04" />
+<img width="1280" height="568" alt="image" src="https://github.com/user-attachments/assets/5bc6eac6-6a5a-4229-a813-ed04fbcd8f69" />
+
 
 
 

@@ -155,16 +155,16 @@ PlasmoidItem {
                 InfoBlock {
                     Layout.fillWidth: true
                     title: root.data.moon.name + "  " + root.data.moon.percent + "%"
-                    subtitle: "Next " + root.data.moon.nextName + " in " + FFXI.formatDuration(root.data.moon.nextMs, true)
-                    detail: "Next " + root.data.moon.optimalName + " in " + FFXI.formatDuration(root.data.moon.optimalMs, false)
-                    iconName: root.data.moon.phase === 4 ? "weather-clear-night" : "weather-few-clouds-night"
+                    subtitle: "Next: " + root.data.moon.nextName + " in " + FFXI.formatDuration(root.data.moon.nextMs, false)
+                    detail: root.data.moon.optimalName + " in " + FFXI.formatDuration(root.data.moon.optimalMs, false)
+                    iconName: "weather-clear-night"
                 }
 
                 InfoBlock {
                     Layout.fillWidth: true
                     title: "Conquest tally"
                     subtitle: FFXI.formatDuration(root.data.conquest.leftMs, true)
-                    detail: root.localDate(root.data.conquest.at) + "  •  " + root.data.conquest.vanaDays + " Vana'diel days"
+                    detail: root.localDate(root.data.conquest.at)
                     iconName: "flag"
                 }
             }

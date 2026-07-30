@@ -12,6 +12,7 @@ PlasmoidItem {
 
     property var data: FFXI.snapshot(Date.now())
     property color accent: "#65b985"
+    property int selectedView: 0
 
     // KDE desktop containments use plain width/height for initial widget size.
     // Layout.preferredWidth/Height only size panel widgets and popups.
@@ -47,6 +48,34 @@ PlasmoidItem {
             lines.push(padRight(guild.name, 14) + padRight(state, 10) + countdown)
         }
         return lines.join("\n")
+    }
+
+    function airshipLines() {
+        var lines = []
+        for (var i = 0; i < data.airships.length; i++) {
+            var ship = data.airships[i]
+            lines.push(padRight(ship.name, 22) + "Departs " + FFXI.formatDuration(ship.departureMs, true))
+        }
+        return lines.join("\n")
+    }
+
+    function boatLines() {
+        var lines = []
+        lines.push("SELBINA ↔ MHAURA")
+        lines.push("Next departure   " + FFXI.formatDuration(data.boats.ferryDepartureMs, true))
+        lines.push("")
+        lines.push("MANACLIPPER / CLAMMING")
+        for (var i = 0; i < Math.min(4, data.boats.manaclipper.length); i++) {
+            var boat = data.boats.manaclipper[i]
+            lines.push(padRight(boat.name, 22) + boat.departure + "  in " + FFXI.formatDuration(boat.departureMs, true))
+        }
+        return lines.join("\n")
+    }
+
+    function activeLines() {
+        if (selectedView === 1) return airshipLines()
+        if (selectedView === 2) return boatLines()
+        return guildLines()
     }
 
     Timer {
@@ -169,13 +198,31 @@ PlasmoidItem {
                 }
             }
 
-            PlasmaComponents3.Label {
-                Layout.topMargin: PlasmaCore.Units.smallSpacing
-                text: "CRAFTING GUILDS"
-                opacity: 0.62
-                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
-                font.capitalization: Font.AllUppercase
-                font.letterSpacing: 1.2
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: PlasmaCore.Units.smallSpacing
+
+                PlasmaComponents3.Button {
+                    Layout.fillWidth: true
+                    text: "Guilds"
+                    checkable: true
+                    checked: root.selectedView === 0
+                    onClicked: root.selectedView = 0
+                }
+                PlasmaComponents3.Button {
+                    Layout.fillWidth: true
+                    text: "Airships"
+                    checkable: true
+                    checked: root.selectedView === 1
+                    onClicked: root.selectedView = 1
+                }
+                PlasmaComponents3.Button {
+                    Layout.fillWidth: true
+                    text: "Boats"
+                    checkable: true
+                    checked: root.selectedView === 2
+                    onClicked: root.selectedView = 2
+                }
             }
 
             Item {
@@ -186,7 +233,7 @@ PlasmoidItem {
 
                 PlasmaComponents3.Label {
                     anchors.fill: parent
-                    text: root.data ? root.guildLines() : ""
+                    text: root.data ? root.activeLines() : ""
                     textFormat: Text.PlainText
                     font.family: "monospace"
                     font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize

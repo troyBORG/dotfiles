@@ -150,11 +150,82 @@ function guildState(guild, nowMs, vana) {
     };
 }
 
+function nextGameTime(nowMs, hour, minute) {
+    var elapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS);
+    var target = (hour * 60 + minute) * GAME_HOUR_MS / 60;
+    var left = target - elapsed;
+    if (left <= 0) left += GAME_DAY_MS;
+    return left;
+}
+
+function airships(nowMs, vana) {
+    var elapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS);
+    var interval = GAME_DAY_MS / 4;
+    var routes = [
+        { name: "Jeuno → Bastok",   offset: 4 * 60 + 10 },
+        { name: "Jeuno → Kazham",   offset: 5 * 60 + 35 },
+        { name: "Jeuno → San d'Oria", offset: 1 * 60 + 10 },
+        { name: "Jeuno → Windurst", offset: 2 * 60 + 40 },
+        { name: "Bastok → Jeuno",   offset: 1 * 60 + 10 },
+        { name: "Kazham → Jeuno",   offset: 2 * 60 + 40 },
+        { name: "San d'Oria → Jeuno", offset: 4 * 60 + 10 },
+        { name: "Windurst → Jeuno", offset: 5 * 60 + 45 }
+    ];
+    var output = [];
+    for (var i = 0; i < routes.length; i++) {
+        var departure = routes[i].offset * GAME_HOUR_MS / 60;
+        while (departure <= elapsed) departure += interval;
+        output.push({
+            name: routes[i].name,
+            departureMs: departure - elapsed,
+            boardingMs: Math.max(0, departure - elapsed - 144000)
+        });
+    }
+    return output;
+}
+
+function boats(nowMs) {
+    var manaclipper = [
+        { name: "Bibiki → Purgonorg", hour: 5, minute: 30, boarding: "04:50" },
+        { name: "Purgonorg → Bibiki", hour: 9, minute: 15, boarding: "08:40" },
+        { name: "Reef tour", hour: 12, minute: 50, boarding: "12:10" },
+        { name: "Bibiki → Purgonorg", hour: 17, minute: 30, boarding: "16:50" },
+        { name: "Purgonorg → Bibiki", hour: 21, minute: 15, boarding: "20:30" },
+        { name: "Dhalmel Rock tour", hour: 0, minute: 50, boarding: "00:10" }
+    ];
+    var output = [];
+    for (var i = 0; i < manaclipper.length; i++) {
+        var route = manaclipper[i];
+        output.push({
+            name: route.name,
+            departure: pad2(route.hour) + ":" + pad2(route.minute),
+            boarding: route.boarding,
+            departureMs: nextGameTime(nowMs, route.hour, route.minute)
+        });
+    }
+    output.sort(function(a, b) { return a.departureMs - b.departureMs; });
+
+    var ferryElapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS / 3);
+    var ferryLeft = GAME_DAY_MS / 3 - ferryElapsed;
+    return {
+        manaclipper: output,
+        ferryDepartureMs: ferryLeft,
+        ferryArrivalMs: Math.max(0, ferryLeft - 216000)
+    };
+}
+
 function snapshot(nowMs) {
     var vana = vanaTime(nowMs);
     var moonInfo = moon(nowMs);
     var conquestInfo = conquest(nowMs);
     var states = [];
     for (var i = 0; i < guilds.length; i++) states.push(guildState(guilds[i], nowMs, vana));
-    return { vana: vana, moon: moonInfo, conquest: conquestInfo, guilds: states };
+    return {
+        vana: vana,
+        moon: moonInfo,
+        conquest: conquestInfo,
+        guilds: states,
+        airships: airships(nowMs, vana),
+        boats: boats(nowMs)
+    };
 }

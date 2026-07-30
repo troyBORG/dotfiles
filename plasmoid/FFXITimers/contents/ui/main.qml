@@ -13,6 +13,13 @@ PlasmoidItem {
     property var data: FFXI.snapshot(Date.now())
     property color accent: "#65b985"
 
+    // KDE desktop containments use plain width/height for initial widget size.
+    // Layout.preferredWidth/Height only size panel widgets and popups.
+    width: PlasmaCore.Units.gridUnit * 24
+    height: PlasmaCore.Units.gridUnit * 29
+    Layout.minimumWidth: PlasmaCore.Units.gridUnit * 18
+    Layout.minimumHeight: PlasmaCore.Units.gridUnit * 22
+
     preferredRepresentation: fullRepresentation
     switchWidth: PlasmaCore.Units.gridUnit * 13
     switchHeight: PlasmaCore.Units.gridUnit * 10

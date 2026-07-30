@@ -190,7 +190,7 @@ PlasmoidItem {
                     textFormat: Text.PlainText
                     font.family: "monospace"
                     font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
-                    lineHeight: 1.55
+                    lineHeight: 1.3
                     lineHeightMode: Text.ProportionalHeight
                     verticalAlignment: Text.AlignTop
                     wrapMode: Text.NoWrap

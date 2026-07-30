@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import org.kde.plasma.plasmoid
-import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 import org.kde.kirigami as Kirigami
 import "../code/ffxi.js" as FFXI
@@ -10,23 +9,23 @@ import "../code/ffxi.js" as FFXI
 PlasmoidItem {
     id: root
 
-    property var data: FFXI.snapshot(Date.now())
+    property var timerData: FFXI.snapshot(Date.now())
     property color accent: "#65b985"
     property int selectedView: 0
 
     // KDE desktop containments use plain width/height for initial widget size.
     // Layout.preferredWidth/Height only size panel widgets and popups.
-    width: PlasmaCore.Units.gridUnit * 24
-    height: PlasmaCore.Units.gridUnit * 29
-    Layout.minimumWidth: PlasmaCore.Units.gridUnit * 18
-    Layout.minimumHeight: PlasmaCore.Units.gridUnit * 22
+    width: Kirigami.Units.gridUnit * 24
+    height: Kirigami.Units.gridUnit * 29
+    Layout.minimumWidth: Kirigami.Units.gridUnit * 18
+    Layout.minimumHeight: Kirigami.Units.gridUnit * 22
 
     preferredRepresentation: fullRepresentation
-    switchWidth: PlasmaCore.Units.gridUnit * 13
-    switchHeight: PlasmaCore.Units.gridUnit * 10
+    switchWidth: Kirigami.Units.gridUnit * 13
+    switchHeight: Kirigami.Units.gridUnit * 10
 
     function refresh() {
-        data = FFXI.snapshot(Date.now())
+        timerData = FFXI.snapshot(Date.now())
     }
 
     function localDate(date) {
@@ -41,8 +40,8 @@ PlasmoidItem {
 
     function guildLines() {
         var lines = []
-        for (var i = 0; i < data.guilds.length; i++) {
-            var guild = data.guilds[i]
+        for (var i = 0; i < timerData.guilds.length; i++) {
+            var guild = timerData.guilds[i]
             var state = guild.isHoliday ? "HOLIDAY" : (guild.isOpen ? "OPEN" : "CLOSED")
             var countdown = guild.label + " " + FFXI.formatDuration(guild.countdownMs, true)
             lines.push(padRight(guild.name, 14) + padRight(state, 10) + countdown)
@@ -52,8 +51,8 @@ PlasmoidItem {
 
     function airshipLines() {
         var lines = []
-        for (var i = 0; i < data.airships.length; i++) {
-            var ship = data.airships[i]
+        for (var i = 0; i < timerData.airships.length; i++) {
+            var ship = timerData.airships[i]
             lines.push(padRight(ship.name, 22) + "Departs " + FFXI.formatDuration(ship.departureMs, true))
         }
         return lines.join("\n")
@@ -62,11 +61,11 @@ PlasmoidItem {
     function boatLines() {
         var lines = []
         lines.push("SELBINA ↔ MHAURA")
-        lines.push("Next departure   " + FFXI.formatDuration(data.boats.ferryDepartureMs, true))
+        lines.push("Next departure   " + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
         lines.push("")
         lines.push("MANACLIPPER / CLAMMING")
-        for (var i = 0; i < Math.min(4, data.boats.manaclipper.length); i++) {
-            var boat = data.boats.manaclipper[i]
+        for (var i = 0; i < Math.min(4, timerData.boats.manaclipper.length); i++) {
+            var boat = timerData.boats.manaclipper[i]
             lines.push(padRight(boat.name, 22) + boat.departure + "  in " + FFXI.formatDuration(boat.departureMs, true))
         }
         return lines.join("\n")
@@ -88,19 +87,19 @@ PlasmoidItem {
 
     compactRepresentation: MouseArea {
         id: compact
-        implicitWidth: PlasmaCore.Units.gridUnit * 7
-        implicitHeight: PlasmaCore.Units.gridUnit * 3
+        implicitWidth: Kirigami.Units.gridUnit * 7
+        implicitHeight: Kirigami.Units.gridUnit * 3
         onClicked: root.expanded = !root.expanded
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: PlasmaCore.Units.smallSpacing
+            anchors.margins: Kirigami.Units.smallSpacing
             spacing: 0
 
             PlasmaComponents3.Label {
                 Layout.fillWidth: true
-                text: root.data.vana.clock
-                color: root.data.vana.dayColor
+                text: root.timerData.vana.clock
+                color: root.timerData.vana.dayColor
                 font.family: "monospace"
                 font.pixelSize: Math.max(12, compact.height * 0.32)
                 font.weight: Font.DemiBold
@@ -109,7 +108,7 @@ PlasmoidItem {
 
             PlasmaComponents3.Label {
                 Layout.fillWidth: true
-                text: root.data.vana.dayName + "  •  " + root.data.moon.percent + "% moon"
+                text: root.timerData.vana.dayName + "  •  " + root.timerData.moon.percent + "% moon"
                 opacity: 0.78
                 font.pixelSize: Math.max(9, compact.height * 0.17)
                 elide: Text.ElideRight
@@ -119,15 +118,15 @@ PlasmoidItem {
     }
 
     fullRepresentation: Item {
-        implicitWidth: PlasmaCore.Units.gridUnit * 23
-        implicitHeight: PlasmaCore.Units.gridUnit * 29
-        Layout.minimumWidth: PlasmaCore.Units.gridUnit * 18
-        Layout.minimumHeight: PlasmaCore.Units.gridUnit * 19
+        implicitWidth: Kirigami.Units.gridUnit * 23
+        implicitHeight: Kirigami.Units.gridUnit * 29
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 18
+        Layout.minimumHeight: Kirigami.Units.gridUnit * 19
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: PlasmaCore.Units.largeSpacing
-            spacing: PlasmaCore.Units.smallSpacing
+            anchors.margins: Kirigami.Units.largeSpacing
+            spacing: Kirigami.Units.smallSpacing
 
             RowLayout {
                 Layout.fillWidth: true
@@ -139,21 +138,21 @@ PlasmoidItem {
                     PlasmaComponents3.Label {
                         text: "VANA'DIEL"
                         opacity: 0.62
-                        font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                        font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                         font.capitalization: Font.AllUppercase
                         font.letterSpacing: 1.2
                     }
 
                     PlasmaComponents3.Label {
-                        text: root.data.vana.clock
-                        color: root.data.vana.dayColor
+                        text: root.timerData.vana.clock
+                        color: root.timerData.vana.dayColor
                         font.family: "monospace"
-                        font.pixelSize: PlasmaCore.Units.gridUnit * 2.25
+                        font.pixelSize: Kirigami.Units.gridUnit * 2.25
                         font.weight: Font.DemiBold
                     }
 
                     PlasmaComponents3.Label {
-                        text: root.data.vana.dayName + "  " + root.data.vana.calendar
+                        text: root.timerData.vana.dayName + "  " + root.timerData.vana.calendar
                         opacity: 0.82
                     }
                 }
@@ -171,36 +170,36 @@ PlasmoidItem {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
-                color: PlasmaCore.Theme.textColor
+                color: Kirigami.Theme.textColor
                 opacity: 0.14
             }
 
             GridLayout {
                 Layout.fillWidth: true
-                columns: width > PlasmaCore.Units.gridUnit * 20 ? 2 : 1
-                columnSpacing: PlasmaCore.Units.largeSpacing
-                rowSpacing: PlasmaCore.Units.smallSpacing
+                columns: width > Kirigami.Units.gridUnit * 20 ? 2 : 1
+                columnSpacing: Kirigami.Units.largeSpacing
+                rowSpacing: Kirigami.Units.smallSpacing
 
                 InfoBlock {
                     Layout.fillWidth: true
-                    title: root.data.moon.name + "  " + root.data.moon.percent + "%"
-                    subtitle: "Next: " + root.data.moon.nextName + " in " + FFXI.formatDuration(root.data.moon.nextMs, false)
-                    detail: root.data.moon.optimalName + " in " + FFXI.formatDuration(root.data.moon.optimalMs, false)
+                    title: root.timerData.moon.name + "  " + root.timerData.moon.percent + "%"
+                    subtitle: "Next: " + root.timerData.moon.nextName + " in " + FFXI.formatDuration(root.timerData.moon.nextMs, false)
+                    detail: root.timerData.moon.optimalName + " in " + FFXI.formatDuration(root.timerData.moon.optimalMs, false)
                     iconName: "weather-clear-night"
                 }
 
                 InfoBlock {
                     Layout.fillWidth: true
                     title: "Conquest tally"
-                    subtitle: FFXI.formatDuration(root.data.conquest.leftMs, true)
-                    detail: root.localDate(root.data.conquest.at)
+                    subtitle: FFXI.formatDuration(root.timerData.conquest.leftMs, true)
+                    detail: root.localDate(root.timerData.conquest.at)
                     iconName: "flag"
                 }
             }
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: PlasmaCore.Units.smallSpacing
+                spacing: Kirigami.Units.smallSpacing
 
                 PlasmaComponents3.Button {
                     Layout.fillWidth: true
@@ -233,10 +232,10 @@ PlasmoidItem {
 
                 PlasmaComponents3.Label {
                     anchors.fill: parent
-                    text: root.data ? root.activeLines() : ""
+                    text: root.timerData ? root.activeLines() : ""
                     textFormat: Text.PlainText
                     font.family: "monospace"
-                    font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                     lineHeight: 1.3
                     lineHeightMode: Text.ProportionalHeight
                     verticalAlignment: Text.AlignTop
@@ -248,7 +247,7 @@ PlasmoidItem {
                 Layout.fillWidth: true
                 text: "Calculations credited to Pyogenes • updates every second"
                 opacity: 0.45
-                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                 horizontalAlignment: Text.AlignRight
             }
         }
@@ -261,11 +260,11 @@ PlasmoidItem {
         property string detail
         property string iconName
 
-        spacing: PlasmaCore.Units.smallSpacing
+        spacing: Kirigami.Units.smallSpacing
 
         Kirigami.Icon {
-            Layout.preferredWidth: PlasmaCore.Units.iconSizes.medium
-            Layout.preferredHeight: PlasmaCore.Units.iconSizes.medium
+            Layout.preferredWidth: Kirigami.Units.iconSizes.medium
+            Layout.preferredHeight: Kirigami.Units.iconSizes.medium
             source: block.iconName
         }
 
@@ -290,7 +289,7 @@ PlasmoidItem {
                 Layout.fillWidth: true
                 text: block.detail
                 opacity: 0.55
-                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                 elide: Text.ElideRight
             }
         }

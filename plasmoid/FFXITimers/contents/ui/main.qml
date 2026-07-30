@@ -154,67 +154,70 @@ PlasmoidItem {
                 font.letterSpacing: 1.2
             }
 
-            ListView {
-                id: guildList
+            Item {
+                id: guildArea
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
-                spacing: 1
-                model: root.data.guilds
 
-                delegate: Item {
-                    required property var modelData
-                    width: guildList.width
-                    height: PlasmaCore.Units.gridUnit * 1.7
+                Repeater {
+                    model: root.data.guilds
 
-                    Rectangle {
-                        anchors.fill: parent
+                    delegate: Rectangle {
+                        required property int index
+                        required property var modelData
+
+                        readonly property real rowHeight: PlasmaCore.Units.gridUnit * 1.7
+
+                        x: 0
+                        y: index * rowHeight
+                        width: guildArea.width
+                        height: rowHeight
                         radius: PlasmaCore.Units.smallSpacing
                         color: modelData.isOpen ? Qt.rgba(0.18, 0.55, 0.34, 0.13) : "transparent"
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: PlasmaCore.Units.smallSpacing
+                            anchors.rightMargin: PlasmaCore.Units.smallSpacing
+                            spacing: PlasmaCore.Units.smallSpacing
+
+                            Rectangle {
+                                Layout.preferredWidth: 7
+                                Layout.preferredHeight: 7
+                                radius: 4
+                                color: modelData.isOpen ? root.accent : PlasmaCore.Theme.disabledTextColor
+                            }
+
+                            PlasmaComponents3.Label {
+                                Layout.fillWidth: true
+                                text: modelData.name
+                                font.weight: modelData.isOpen ? Font.DemiBold : Font.Normal
+                                elide: Text.ElideRight
+                            }
+
+                            PlasmaComponents3.Label {
+                                text: modelData.isHoliday ? "Holiday" : (modelData.isOpen ? "Open" : "Closed")
+                                color: modelData.isOpen ? root.accent : PlasmaCore.Theme.textColor
+                                opacity: modelData.isOpen ? 1.0 : 0.58
+                                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                            }
+
+                            PlasmaComponents3.Label {
+                                Layout.preferredWidth: PlasmaCore.Units.gridUnit * 6.3
+                                text: modelData.label + " " + FFXI.formatDuration(modelData.countdownMs, true)
+                                horizontalAlignment: Text.AlignRight
+                                font.family: "monospace"
+                                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                                opacity: 0.78
+                            }
+                        }
+
+                        QQC2.ToolTip.visible: hover.hovered
+                        QQC2.ToolTip.text: modelData.hours + " • Holiday: " + modelData.holiday
+
+                        HoverHandler { id: hover }
                     }
-
-                    RowLayout {
-                        id: guildRow
-                        anchors.fill: parent
-                        anchors.leftMargin: PlasmaCore.Units.smallSpacing
-                        anchors.rightMargin: PlasmaCore.Units.smallSpacing
-                        spacing: PlasmaCore.Units.smallSpacing
-
-                        Rectangle {
-                            Layout.preferredWidth: 7
-                            Layout.preferredHeight: 7
-                            radius: 4
-                            color: modelData.isOpen ? root.accent : PlasmaCore.Theme.disabledTextColor
-                        }
-
-                        PlasmaComponents3.Label {
-                            Layout.fillWidth: true
-                            text: modelData.name
-                            font.weight: modelData.isOpen ? Font.DemiBold : Font.Normal
-                            elide: Text.ElideRight
-                        }
-
-                        PlasmaComponents3.Label {
-                            text: modelData.isHoliday ? "Holiday" : (modelData.isOpen ? "Open" : "Closed")
-                            color: modelData.isOpen ? root.accent : PlasmaCore.Theme.textColor
-                            opacity: modelData.isOpen ? 1.0 : 0.58
-                            font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
-                        }
-
-                        PlasmaComponents3.Label {
-                            Layout.preferredWidth: PlasmaCore.Units.gridUnit * 6.3
-                            text: modelData.label + " " + FFXI.formatDuration(modelData.countdownMs, true)
-                            horizontalAlignment: Text.AlignRight
-                            font.family: "monospace"
-                            font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
-                            opacity: 0.78
-                        }
-                    }
-
-                    QQC2.ToolTip.visible: hover.hovered
-                    QQC2.ToolTip.text: modelData.hours + " • Holiday: " + modelData.holiday
-
-                    HoverHandler { id: hover }
                 }
             }
 

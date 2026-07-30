@@ -32,6 +32,23 @@ PlasmoidItem {
         return Qt.formatDateTime(date, "ddd MMM d, h:mm AP")
     }
 
+    function padRight(value, width) {
+        var output = "" + value
+        while (output.length < width) output += " "
+        return output
+    }
+
+    function guildLines() {
+        var lines = []
+        for (var i = 0; i < data.guilds.length; i++) {
+            var guild = data.guilds[i]
+            var state = guild.isHoliday ? "HOLIDAY" : (guild.isOpen ? "OPEN" : "CLOSED")
+            var countdown = guild.label + " " + FFXI.formatDuration(guild.countdownMs, true)
+            lines.push(padRight(guild.name, 14) + padRight(state, 10) + countdown)
+        }
+        return lines.join("\n")
+    }
+
     Timer {
         interval: 1000
         running: true
@@ -167,15 +184,17 @@ PlasmoidItem {
                 Layout.fillHeight: true
                 clip: true
 
-                GuildRow { rowNumber: 0; guild: root.data.guilds[0] }
-                GuildRow { rowNumber: 1; guild: root.data.guilds[1] }
-                GuildRow { rowNumber: 2; guild: root.data.guilds[2] }
-                GuildRow { rowNumber: 3; guild: root.data.guilds[3] }
-                GuildRow { rowNumber: 4; guild: root.data.guilds[4] }
-                GuildRow { rowNumber: 5; guild: root.data.guilds[5] }
-                GuildRow { rowNumber: 6; guild: root.data.guilds[6] }
-                GuildRow { rowNumber: 7; guild: root.data.guilds[7] }
-                GuildRow { rowNumber: 8; guild: root.data.guilds[8] }
+                PlasmaComponents3.Label {
+                    anchors.fill: parent
+                    text: root.data ? root.guildLines() : ""
+                    textFormat: Text.PlainText
+                    font.family: "monospace"
+                    font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
+                    lineHeight: 1.55
+                    lineHeightMode: Text.ProportionalHeight
+                    verticalAlignment: Text.AlignTop
+                    wrapMode: Text.NoWrap
+                }
             }
 
             PlasmaComponents3.Label {
@@ -186,62 +205,6 @@ PlasmoidItem {
                 horizontalAlignment: Text.AlignRight
             }
         }
-    }
-
-    component GuildRow: Rectangle {
-        id: guildRow
-        required property var guild
-        required property int rowNumber
-        readonly property real rowHeight: PlasmaCore.Units.gridUnit * 1.7
-
-        x: 0
-        y: rowNumber * rowHeight
-        width: parent ? parent.width : 0
-        height: rowHeight
-        radius: PlasmaCore.Units.smallSpacing
-        color: guild.isOpen ? Qt.rgba(0.18, 0.55, 0.34, 0.13) : "transparent"
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: PlasmaCore.Units.smallSpacing
-            anchors.rightMargin: PlasmaCore.Units.smallSpacing
-            spacing: PlasmaCore.Units.smallSpacing
-
-            Rectangle {
-                Layout.preferredWidth: 7
-                Layout.preferredHeight: 7
-                radius: 4
-                color: guildRow.guild.isOpen ? root.accent : PlasmaCore.Theme.disabledTextColor
-            }
-
-            PlasmaComponents3.Label {
-                Layout.fillWidth: true
-                text: guildRow.guild.name
-                font.weight: guildRow.guild.isOpen ? Font.DemiBold : Font.Normal
-                elide: Text.ElideRight
-            }
-
-            PlasmaComponents3.Label {
-                text: guildRow.guild.isHoliday ? "Holiday" : (guildRow.guild.isOpen ? "Open" : "Closed")
-                color: guildRow.guild.isOpen ? root.accent : PlasmaCore.Theme.textColor
-                opacity: guildRow.guild.isOpen ? 1.0 : 0.58
-                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
-            }
-
-            PlasmaComponents3.Label {
-                Layout.preferredWidth: PlasmaCore.Units.gridUnit * 6.3
-                text: guildRow.guild.label + " " + FFXI.formatDuration(guildRow.guild.countdownMs, true)
-                horizontalAlignment: Text.AlignRight
-                font.family: "monospace"
-                font.pixelSize: PlasmaCore.Theme.smallestFont.pixelSize
-                opacity: 0.78
-            }
-        }
-
-        QQC2.ToolTip.visible: hover.hovered
-        QQC2.ToolTip.text: guild.hours + " • Holiday: " + guild.holiday
-
-        HoverHandler { id: hover }
     }
 
     component InfoBlock: RowLayout {

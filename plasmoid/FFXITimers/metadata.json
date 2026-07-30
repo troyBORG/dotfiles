@@ -1,0 +1,19 @@
+{
+  "KPackageStructure": "Plasma/Applet",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Name": "Penny for TroyBORG"
+      }
+    ],
+    "Category": "Date and Time",
+    "Description": "Vana'diel time, moon phase, conquest tally, and guild hours",
+    "Icon": "weather-clear-night",
+    "Id": "com.pennywiseops.ffxitimers",
+    "License": "MIT",
+    "Name": "FFXI Timers",
+    "Version": "1.0.2",
+    "Website": "https://www.pyogenes.com/ffxi/timer/v2.html"
+  },
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

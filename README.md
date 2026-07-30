@@ -17,6 +17,7 @@ My personal dotfiles configuration for Linux (CachyOS/Arch-based).
 - **Konsole** - Terminal profile with color scheme and font configuration
 - **KDE** - Desktop theme configuration (colors, icons, look-and-feel)
 - **Scripts** - Helper scripts for Starship modules and system management
+- **FFXI Timers** - KDE Plasma 6 widget for Final Fantasy XI timers
 
 ## Installation
 
@@ -500,7 +501,47 @@ The KDE theme configuration includes a custom "Troy Green" color scheme with a g
 
 </details>
 
+## FFXI Timers Plasma Widget
+
+A KDE Plasma 6 desktop widget for Final Fantasy XI timers. It calculates everything locally and updates once per second, so it does not depend on an embedded webpage or external API.
+
+### Features
+
+- Live Vana'diel time, date, and elemental day
+- Current moon phase and illumination
+- Countdown to the next moon phase
+- Weekly Conquest tally countdown
+- Open, closed, and holiday status for all crafting guilds
+- Airship departure timers for all eight Jeuno routes
+- Selbina-Mhaura ferry timer
+- Manaclipper timers for Purgonorg Isle, Maliyakaleya Reef, and Dhalmel Rock
+- Compact and expanded Plasma layouts
+- Breeze and dark-theme support
+
+Timer calculations are based on [Pyogenes' FFXI Timer](https://www.pyogenes.com/ffxi/timer/v2.html). Manaclipper schedules were verified against the [HorizonXI Wiki](https://horizonffxi.wiki/Manaclipper).
+
+### Installation
+
+Download [`plasmoid/FFXITimers.plasmoid`](./plasmoid/FFXITimers.plasmoid), then install it with:
+
+```bash
+kpackagetool6 --type Plasma/Applet --install ~/Downloads/FFXITimers.plasmoid
+```
+
+After installation, right-click the desktop, select **Add Widgets**, search for **FFXI Timers**, and drag it onto the desktop.
+
+To upgrade an existing installation:
+
+```bash
+kpackagetool6 --type Plasma/Applet --upgrade ~/Downloads/FFXITimers.plasmoid
+kquitapp6 plasmashell 2>/dev/null || true
+plasmashell --replace >/tmp/plasmashell.log 2>&1 &
+```
+
+The unpacked widget source lives in [`plasmoid/FFXITimers/`](./plasmoid/FFXITimers). Version tags named `ffxi-timers-v*` preserve the widget's release history.
+
 ## License
 
 Personal dotfiles - feel free to use and modify as needed.
+
 

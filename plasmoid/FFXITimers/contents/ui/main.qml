@@ -160,22 +160,15 @@ PlasmoidItem {
                 Layout.fillHeight: true
                 clip: true
 
-                ColumnLayout {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    spacing: 1
-
-                    GuildRow { guild: root.data.guilds[0] }
-                    GuildRow { guild: root.data.guilds[1] }
-                    GuildRow { guild: root.data.guilds[2] }
-                    GuildRow { guild: root.data.guilds[3] }
-                    GuildRow { guild: root.data.guilds[4] }
-                    GuildRow { guild: root.data.guilds[5] }
-                    GuildRow { guild: root.data.guilds[6] }
-                    GuildRow { guild: root.data.guilds[7] }
-                    GuildRow { guild: root.data.guilds[8] }
-                }
+                GuildRow { rowNumber: 0; guild: root.data.guilds[0] }
+                GuildRow { rowNumber: 1; guild: root.data.guilds[1] }
+                GuildRow { rowNumber: 2; guild: root.data.guilds[2] }
+                GuildRow { rowNumber: 3; guild: root.data.guilds[3] }
+                GuildRow { rowNumber: 4; guild: root.data.guilds[4] }
+                GuildRow { rowNumber: 5; guild: root.data.guilds[5] }
+                GuildRow { rowNumber: 6; guild: root.data.guilds[6] }
+                GuildRow { rowNumber: 7; guild: root.data.guilds[7] }
+                GuildRow { rowNumber: 8; guild: root.data.guilds[8] }
             }
 
             PlasmaComponents3.Label {
@@ -191,9 +184,13 @@ PlasmoidItem {
     component GuildRow: Rectangle {
         id: guildRow
         required property var guild
+        required property int rowNumber
+        readonly property real rowHeight: PlasmaCore.Units.gridUnit * 1.7
 
-        Layout.fillWidth: true
-        Layout.preferredHeight: PlasmaCore.Units.gridUnit * 1.7
+        x: 0
+        y: rowNumber * rowHeight
+        width: parent ? parent.width : 0
+        height: rowHeight
         radius: PlasmaCore.Units.smallSpacing
         color: guild.isOpen ? Qt.rgba(0.18, 0.55, 0.34, 0.13) : "transparent"
 

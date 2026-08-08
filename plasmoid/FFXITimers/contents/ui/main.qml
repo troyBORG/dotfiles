@@ -13,10 +13,7 @@ PlasmoidItem {
     property var timerData: FFXI.snapshot(Date.now())
     property color accent: "#65b985"
     property int selectedView: 0
-    property bool mhauraAlertArmed: false
-    property int mhauraAlertsRemaining: 0
-    property bool nashmauAlertArmed: false
-    property int nashmauAlertsRemaining: 0
+    property var alertStages: ({})
 
     // KDE desktop containments use plain width/height for initial widget size.
     // Layout.preferredWidth/Height only size panel widgets and popups.
@@ -31,44 +28,84 @@ PlasmoidItem {
 
     function refresh() {
         var nextData = FFXI.snapshot(Date.now())
-        if (timerData) {
-            processFerryTransition(
-                "mhaura",
-                timerData.boats.mhauraWhitegateState,
-                nextData.boats.mhauraWhitegateState
-            )
-            processFerryTransition(
-                "nashmau",
-                timerData.boats.nashmauWhitegateState,
-                nextData.boats.nashmauWhitegateState
-            )
-        }
+        if (timerData) processTransportTransitions(timerData, nextData)
         timerData = nextData
     }
 
-    function processFerryTransition(route, previous, current) {
-        var remaining = route === "mhaura" ? mhauraAlertsRemaining : nashmauAlertsRemaining
-        var result = FFXI.advanceFerryAlert(previous.state, current.state, remaining)
-        if (!result.triggered) return
-
-        shipAlert.play()
-        if (route === "mhaura") {
-            mhauraAlertsRemaining = result.remaining
-            mhauraAlertArmed = result.armed
-        } else {
-            nashmauAlertsRemaining = result.remaining
-            nashmauAlertArmed = result.armed
-        }
+    function allRoutes(data) {
+        return data.airships.concat(data.boats)
     }
 
-    function toggleFerryAlert(route, state) {
-        if (route === "mhaura") {
-            mhauraAlertArmed = !mhauraAlertArmed
-            mhauraAlertsRemaining = mhauraAlertArmed ? (state === "boarding" ? 1 : 2) : 0
-        } else {
-            nashmauAlertArmed = !nashmauAlertArmed
-            nashmauAlertsRemaining = nashmauAlertArmed ? (state === "boarding" ? 1 : 2) : 0
+    function routeById(routes, id) {
+        for (var i = 0; i < routes.length; i++) {
+            if (routes[i].id === id) return routes[i]
         }
+        return null
+    }
+
+    function copyAlertStages() {
+        var copy = {}
+        for (var key in alertStages) copy[key] = alertStages[key]
+        return copy
+    }
+
+    function processTransportTransitions(previousData, currentData) {
+        var previousRoutes = allRoutes(previousData)
+        var currentRoutes = allRoutes(currentData)
+        var nextStages = copyAlertStages()
+        var changed = false
+
+        for (var id in alertStages) {
+            var previous = routeById(previousRoutes, id)
+            var current = routeById(currentRoutes, id)
+            if (!previous || !current) continue
+
+            var result = FFXI.advanceTransportAlert(previous.state, current.state, alertStages[id])
+            if (!result.triggered) continue
+
+            shipAlert.play()
+            changed = true
+            if (result.stage) nextStages[id] = result.stage
+            else delete nextStages[id]
+        }
+
+        if (changed) alertStages = nextStages
+    }
+
+    function toggleTransportAlert(route) {
+        var nextStages = copyAlertStages()
+        if (nextStages[route.id]) delete nextStages[route.id]
+        else nextStages[route.id] = route.state === "boarding" ? "arrival" : "boarding"
+        alertStages = nextStages
+    }
+
+    function transportRoutes() {
+        return selectedView === 1 ? timerData.airships : timerData.boats
+    }
+
+    function transportLine(route) {
+        var status
+        var color
+        if (route.state === "boarding") {
+            status = "BOARDING · departs "
+            color = "#65b985"
+        } else if (route.state === "transit") {
+            status = "IN TRANSIT · arrives "
+            color = "#58a6d6"
+        } else {
+            status = "NEXT SHIP · boards "
+            color = "#dedede"
+        }
+        return "<font color=\"" + color + "\">" + status + FFXI.formatDuration(route.countdownMs, true) + "</font>"
+    }
+
+    function alertTooltip(route) {
+        var stage = alertStages[route.id]
+        if (stage === "boarding") return "Armed for boarding, then destination arrival"
+        if (stage === "arrival") return "Armed for destination arrival"
+        return route.state === "boarding"
+            ? "Alert at destination arrival"
+            : "Alert when boarding starts, then again at the destination"
     }
 
     onSelectedViewChanged: contentFlick.contentY = 0
@@ -94,36 +131,7 @@ PlasmoidItem {
         return lines.join("\n")
     }
 
-    function airshipLines() {
-        var lines = []
-        for (var i = 0; i < timerData.airships.length; i++) {
-            var ship = timerData.airships[i]
-            lines.push(padRight(ship.name, 22) + "Departs " + FFXI.formatDuration(ship.departureMs, true))
-        }
-        return lines.join("\n")
-    }
-
-    function boatLines() {
-        var lines = []
-        lines.push(padRight("Selbina ↔ Mhaura", 23).replace(/ /g, "&nbsp;") + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
-        lines.push("")
-        lines.push("MANACLIPPER / CLAMMING")
-        for (var i = 0; i < Math.min(4, timerData.boats.manaclipper.length); i++) {
-            var boat = timerData.boats.manaclipper[i]
-            lines.push(padRight(boat.name, 22).replace(/ /g, "&nbsp;") + boat.departure + "&nbsp;&nbsp;in&nbsp;" + FFXI.formatDuration(boat.departureMs, true))
-        }
-        return lines.join("<br>")
-    }
-
-    function ferryLine(name, route) {
-        var status = route.state === "boarding" ? "BOARDING · departs " : "IN TRANSIT · arrives "
-        var color = route.state === "boarding" ? "#65b985" : "#58a6d6"
-        return "<font color=\"" + color + "\">" + padRight(name, 23).replace(/ /g, "&nbsp;") + status + FFXI.formatDuration(route.countdownMs, true) + "</font>"
-    }
-
     function activeLines() {
-        if (selectedView === 1) return airshipLines()
-        if (selectedView === 2) return boatLines()
         return guildLines()
     }
 
@@ -280,43 +288,13 @@ PlasmoidItem {
                 }
             }
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                visible: root.selectedView === 2
-                spacing: 0
-
-                PlasmaComponents3.Label {
-                    text: "FERRIES"
-                    font.family: "monospace"
-                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
-                }
-
-                FerryAlertRow {
-                    Layout.fillWidth: true
-                    routeName: "Mhaura ↔ Whitegate"
-                    routeState: root.timerData.boats.mhauraWhitegateState
-                    armed: root.mhauraAlertArmed
-                    alertsRemaining: root.mhauraAlertsRemaining
-                    onToggled: root.toggleFerryAlert("mhaura", routeState.state)
-                }
-
-                FerryAlertRow {
-                    Layout.fillWidth: true
-                    routeName: "Nashmau ↔ Whitegate"
-                    routeState: root.timerData.boats.nashmauWhitegateState
-                    armed: root.nashmauAlertArmed
-                    alertsRemaining: root.nashmauAlertsRemaining
-                    onToggled: root.toggleFerryAlert("nashmau", routeState.state)
-                }
-            }
-
             Flickable {
                 id: contentFlick
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
                 contentWidth: width
-                contentHeight: timerLabel.implicitHeight
+                contentHeight: root.selectedView === 0 ? timerLabel.implicitHeight : routeColumn.implicitHeight
                 boundsBehavior: Flickable.StopAtBounds
                 flickableDirection: Flickable.VerticalFlick
                 QQC2.ScrollBar.vertical: QQC2.ScrollBar {
@@ -325,16 +303,36 @@ PlasmoidItem {
 
                 PlasmaComponents3.Label {
                     id: timerLabel
+                    visible: root.selectedView === 0
                     width: contentFlick.width
-                    height: implicitHeight
+                    height: visible ? implicitHeight : 0
                     text: root.timerData ? root.activeLines() : ""
-                    textFormat: root.selectedView === 2 ? Text.StyledText : Text.PlainText
+                    textFormat: Text.PlainText
                     font.family: "monospace"
                     font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                     lineHeight: 1.3
                     lineHeightMode: Text.ProportionalHeight
                     verticalAlignment: Text.AlignTop
                     wrapMode: Text.NoWrap
+                }
+
+                Column {
+                    id: routeColumn
+                    visible: root.selectedView !== 0
+                    width: contentFlick.width
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Repeater {
+                        model: root.transportRoutes()
+
+                        delegate: TransportAlertRow {
+                            required property int index
+                            required property var modelData
+                            width: routeColumn.width
+                            route: modelData
+                            showHeader: index === 0 || modelData.group !== root.transportRoutes()[index - 1].group
+                        }
+                    }
                 }
             }
 
@@ -390,37 +388,58 @@ PlasmoidItem {
         }
     }
 
-    component FerryAlertRow: RowLayout {
-        id: ferryRow
-        required property string routeName
-        required property var routeState
-        required property bool armed
-        required property int alertsRemaining
-        signal toggled()
+    component TransportAlertRow: Column {
+        id: transportRow
+        required property var route
+        required property bool showHeader
 
-        spacing: Kirigami.Units.smallSpacing
+        spacing: 0
 
         PlasmaComponents3.Label {
-            Layout.fillWidth: true
-            text: root.ferryLine(ferryRow.routeName, ferryRow.routeState)
-            textFormat: Text.StyledText
+            visible: transportRow.showHeader
+            height: visible ? implicitHeight : 0
+            text: transportRow.route.group
             font.family: "monospace"
+            font.weight: Font.DemiBold
             font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
-            elide: Text.ElideRight
+            opacity: 0.65
         }
 
-        PlasmaComponents3.ToolButton {
-            checkable: true
-            checked: ferryRow.armed
-            icon.name: ferryRow.armed ? "notifications" : "notifications-disabled"
-            text: ferryRow.armed ? "Cancel ship alert" : "Arm ship alert"
-            onClicked: ferryRow.toggled()
-            QQC2.ToolTip.visible: hovered
-            QQC2.ToolTip.text: ferryRow.armed
-                ? "Armed for " + ferryRow.alertsRemaining + " arrival" + (ferryRow.alertsRemaining === 1 ? "" : "s")
-                : (ferryRow.routeState.state === "boarding"
-                    ? "Alert when this trip reaches its destination"
-                    : "Alert when boarding starts, then again at the destination")
+        RowLayout {
+            width: transportRow.width
+            spacing: Kirigami.Units.smallSpacing
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 0
+
+                PlasmaComponents3.Label {
+                    Layout.fillWidth: true
+                    text: transportRow.route.name
+                    font.family: "monospace"
+                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                    elide: Text.ElideRight
+                }
+
+                PlasmaComponents3.Label {
+                    Layout.fillWidth: true
+                    text: root.transportLine(transportRow.route)
+                    textFormat: Text.StyledText
+                    font.family: "monospace"
+                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                    elide: Text.ElideRight
+                }
+            }
+
+            PlasmaComponents3.ToolButton {
+                checkable: true
+                checked: !!root.alertStages[transportRow.route.id]
+                icon.name: checked ? "notifications" : "notifications-disabled"
+                text: checked ? "Cancel transport alert" : "Arm transport alert"
+                onClicked: root.toggleTransportAlert(transportRow.route)
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: root.alertTooltip(transportRow.route)
+            }
         }
     }
 }

@@ -158,91 +158,72 @@ function nextGameTime(nowMs, hour, minute) {
     return left;
 }
 
-function repeatingRouteState(nowMs, departures, tripMinutes) {
-    var dayMinutes = 24 * 60;
-    var nowMinutes = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS) / GAME_HOUR_MS * 60;
-    var previous = departures[departures.length - 1] - dayMinutes;
-    var next = departures[0];
-    for (var i = 0; i < departures.length; i++) {
-        if (departures[i] <= nowMinutes) previous = departures[i];
-        if (departures[i] > nowMinutes) { next = departures[i]; break; }
+function scheduledTripState(nowMs, boardingMinute, departureMinute, arrivalMinute, intervalMinutes) {
+    var nowMinutes = (nowMs - BASIS_MS) / GAME_HOUR_MS * 60;
+    var cycleStart = Math.floor((nowMinutes - boardingMinute) / intervalMinutes) * intervalMinutes;
+    var boarding = cycleStart + boardingMinute;
+    var departure = cycleStart + departureMinute;
+    var arrival = cycleStart + arrivalMinute;
+
+    if (nowMinutes < departure) {
+        return { state: "boarding", countdownMs: (departure - nowMinutes) * GAME_HOUR_MS / 60 };
     }
-    if (next <= nowMinutes) next += dayMinutes;
-    var sinceDeparture = nowMinutes - previous;
-    if (sinceDeparture < tripMinutes) {
-        return { state: "transit", countdownMs: (tripMinutes - sinceDeparture) * GAME_HOUR_MS / 60 };
+    if (nowMinutes < arrival) {
+        return { state: "transit", countdownMs: (arrival - nowMinutes) * GAME_HOUR_MS / 60 };
     }
-    return { state: "boarding", countdownMs: (next - nowMinutes) * GAME_HOUR_MS / 60 };
+    return { state: "waiting", countdownMs: (boarding + intervalMinutes - nowMinutes) * GAME_HOUR_MS / 60 };
 }
 
-function advanceFerryAlert(previousState, currentState, remaining) {
-    var triggered = remaining > 0 && previousState === "transit" && currentState === "boarding";
-    var nextRemaining = triggered ? remaining - 1 : remaining;
-    return { triggered: triggered, remaining: nextRemaining, armed: nextRemaining > 0 };
+function transportRoute(nowMs, id, name, boardingMinute, departureMinute, arrivalMinute, intervalMinutes, group) {
+    var state = scheduledTripState(nowMs, boardingMinute, departureMinute, arrivalMinute, intervalMinutes);
+    return {
+        id: id,
+        name: name,
+        group: group,
+        state: state.state,
+        countdownMs: state.countdownMs
+    };
 }
 
-function airships(nowMs, vana) {
-    var elapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS);
-    var interval = GAME_DAY_MS / 4;
-    var routes = [
-        { name: "Jeuno → Bastok",   offset: 4 * 60 + 10 },
-        { name: "Jeuno → Kazham",   offset: 5 * 60 + 35 },
-        { name: "Jeuno → San d'Oria", offset: 1 * 60 + 10 },
-        { name: "Jeuno → Windurst", offset: 2 * 60 + 40 },
-        { name: "Bastok → Jeuno",   offset: 1 * 60 + 10 },
-        { name: "Kazham → Jeuno",   offset: 2 * 60 + 40 },
-        { name: "San d'Oria → Jeuno", offset: 4 * 60 + 10 },
-        { name: "Windurst → Jeuno", offset: 5 * 60 + 45 }
+function advanceTransportAlert(previousState, currentState, stage) {
+    if (stage === "boarding" && previousState !== "boarding" && currentState === "boarding") {
+        return { triggered: true, stage: "arrival" };
+    }
+    if (stage === "arrival" && previousState === "transit" && currentState !== "transit") {
+        return { triggered: true, stage: "" };
+    }
+    return { triggered: false, stage: stage };
+}
+
+function airships(nowMs) {
+    var interval = 360;
+    return [
+        transportRoute(nowMs, "air-j-b", "Jeuno → Bastok", 190, 250, 370, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-j-k", "Jeuno → Kazham", 275, 335, 460, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-j-s", "Jeuno → San d'Oria", 10, 70, 190, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-j-w", "Jeuno → Windurst", 100, 160, 285, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-b-j", "Bastok → Jeuno", 10, 70, 190, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-k-j", "Kazham → Jeuno", 100, 160, 275, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-s-j", "San d'Oria → Jeuno", 190, 250, 370, interval, "AIRSHIPS"),
+        transportRoute(nowMs, "air-w-j", "Windurst → Jeuno", 285, 345, 460, interval, "AIRSHIPS")
     ];
-    var output = [];
-    for (var i = 0; i < routes.length; i++) {
-        var departure = routes[i].offset * GAME_HOUR_MS / 60;
-        while (departure <= elapsed) departure += interval;
-        output.push({
-            name: routes[i].name,
-            departureMs: departure - elapsed,
-            boardingMs: Math.max(0, departure - elapsed - 144000)
-        });
-    }
-    return output;
 }
 
 function boats(nowMs) {
-    var manaclipper = [
-        { name: "Bibiki → Purgonorg", hour: 5, minute: 30, boarding: "04:50" },
-        { name: "Purgonorg → Bibiki", hour: 9, minute: 15, boarding: "08:40" },
-        { name: "Reef tour", hour: 12, minute: 50, boarding: "12:10" },
-        { name: "Bibiki → Purgonorg", hour: 17, minute: 30, boarding: "16:50" },
-        { name: "Purgonorg → Bibiki", hour: 21, minute: 15, boarding: "20:30" },
-        { name: "Dhalmel Rock tour", hour: 0, minute: 50, boarding: "00:10" }
+    return [
+        transportRoute(nowMs, "ferry-s-m", "Selbina → Mhaura", 390, 480, 870, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-m-s", "Mhaura → Selbina", 390, 480, 870, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-m-w", "Mhaura → Whitegate", 160, 240, 640, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-w-m", "Whitegate → Mhaura", 160, 240, 640, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-w-n", "Whitegate → Nashmau", 300, 480, 780, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-n-w", "Nashmau → Whitegate", 300, 480, 780, 480, "FERRIES"),
+        transportRoute(nowMs, "mana-dhalmel", "Dhalmel Rock tour", 10, 50, 290, 1440, "MANACLIPPER / CLAMMING"),
+        transportRoute(nowMs, "mana-purg-1", "Bibiki → Purgonorg", 290, 330, 520, 1440, "MANACLIPPER / CLAMMING"),
+        transportRoute(nowMs, "mana-bibiki-1", "Purgonorg → Bibiki", 520, 555, 730, 1440, "MANACLIPPER / CLAMMING"),
+        transportRoute(nowMs, "mana-reef", "Maliyakaleya Reef tour", 730, 770, 1010, 1440, "MANACLIPPER / CLAMMING"),
+        transportRoute(nowMs, "mana-purg-2", "Bibiki → Purgonorg", 1010, 1050, 1230, 1440, "MANACLIPPER / CLAMMING"),
+        transportRoute(nowMs, "mana-bibiki-2", "Purgonorg → Bibiki", 1230, 1275, 1450, 1440, "MANACLIPPER / CLAMMING")
     ];
-    var output = [];
-    for (var i = 0; i < manaclipper.length; i++) {
-        var route = manaclipper[i];
-        output.push({
-            name: route.name,
-            departure: pad2(route.hour) + ":" + pad2(route.minute),
-            boarding: route.boarding,
-            departureMs: nextGameTime(nowMs, route.hour, route.minute)
-        });
-    }
-    output.sort(function(a, b) { return a.departureMs - b.departureMs; });
-
-    var ferryElapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS / 3);
-    var ferryLeft = GAME_DAY_MS / 3 - ferryElapsed;
-    var whitegateDepartures = [4, 12, 20];
-    var whitegateLeft = GAME_DAY_MS;
-    for (var j = 0; j < whitegateDepartures.length; j++) {
-        whitegateLeft = Math.min(whitegateLeft, nextGameTime(nowMs, whitegateDepartures[j], 0));
-    }
-    return {
-        manaclipper: output,
-        ferryDepartureMs: ferryLeft,
-        ferryArrivalMs: Math.max(0, ferryLeft - 216000),
-        whitegateDepartureMs: whitegateLeft,
-        mhauraWhitegateState: repeatingRouteState(nowMs, [240, 720, 1200], 400),
-        nashmauWhitegateState: repeatingRouteState(nowMs, [0, 480, 960], 400)
-    };
 }
 
 function snapshot(nowMs) {

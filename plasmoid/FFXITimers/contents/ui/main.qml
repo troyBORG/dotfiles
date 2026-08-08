@@ -1,10 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
-import QtMultimedia
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 import org.kde.kirigami as Kirigami
+import org.kde.notification
 import "../code/ffxi.js" as FFXI
 
 PlasmoidItem {
@@ -60,10 +60,11 @@ PlasmoidItem {
             var current = routeById(currentRoutes, id)
             if (!previous || !current) continue
 
-            var result = FFXI.advanceTransportAlert(previous.state, current.state, alertStages[id])
+            var stage = alertStages[id]
+            var result = FFXI.advanceTransportAlert(previous.state, current.state, stage)
             if (!result.triggered) continue
 
-            shipAlert.play()
+            sendTransportNotification(current, stage)
             changed = true
             if (result.stage) nextStages[id] = result.stage
             else delete nextStages[id]
@@ -108,6 +109,14 @@ PlasmoidItem {
             : "Alert when boarding starts, then again at the destination"
     }
 
+    function sendTransportNotification(route, stage) {
+        transportNotification.title = stage === "boarding" ? "Transport boarding" : "Destination reached"
+        transportNotification.text = stage === "boarding"
+            ? route.name + " is boarding now."
+            : route.name + " has arrived."
+        transportNotification.sendEvent()
+    }
+
     onSelectedViewChanged: contentFlick.contentY = 0
 
     function localDate(date) {
@@ -143,10 +152,12 @@ PlasmoidItem {
         onTriggered: root.refresh()
     }
 
-    SoundEffect {
-        id: shipAlert
-        source: Qt.resolvedUrl("../assets/ship-alert.wav")
-        volume: 0.85
+    Notification {
+        id: transportNotification
+        componentName: "plasma_workspace"
+        eventId: "notification"
+        flags: Notification.CloseOnTimeout
+        urgency: Notification.NormalUrgency
     }
 
     compactRepresentation: MouseArea {

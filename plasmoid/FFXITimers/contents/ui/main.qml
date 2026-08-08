@@ -28,6 +28,8 @@ PlasmoidItem {
         timerData = FFXI.snapshot(Date.now())
     }
 
+    onSelectedViewChanged: contentFlick.contentY = 0
+
     function localDate(date) {
         return Qt.formatDateTime(date, "ddd MMM d, h:mm AP")
     }
@@ -234,14 +236,23 @@ PlasmoidItem {
                 }
             }
 
-            Item {
-                id: guildArea
+            Flickable {
+                id: contentFlick
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
+                contentWidth: width
+                contentHeight: timerLabel.implicitHeight
+                boundsBehavior: Flickable.StopAtBounds
+                flickableDirection: Flickable.VerticalFlick
+                QQC2.ScrollBar.vertical: QQC2.ScrollBar {
+                    policy: QQC2.ScrollBar.AlwaysOff
+                }
 
                 PlasmaComponents3.Label {
-                    anchors.fill: parent
+                    id: timerLabel
+                    width: contentFlick.width
+                    height: implicitHeight
                     text: root.timerData ? root.activeLines() : ""
                     textFormat: root.selectedView === 2 ? Text.StyledText : Text.PlainText
                     font.family: "monospace"

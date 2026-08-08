@@ -160,22 +160,58 @@ function nextGameTime(nowMs, hour, minute) {
 
 function scheduledTripState(nowMs, boardingMinute, departureMinute, arrivalMinute, intervalMinutes) {
     var nowMinutes = (nowMs - BASIS_MS) / GAME_HOUR_MS * 60;
-    var cycleStart = Math.floor((nowMinutes - boardingMinute) / intervalMinutes) * intervalMinutes;
+    var compareNow = nowMinutes + 0.0000001;
+    var cycleStart = Math.floor((compareNow - boardingMinute) / intervalMinutes) * intervalMinutes;
     var boarding = cycleStart + boardingMinute;
     var departure = cycleStart + departureMinute;
     var arrival = cycleStart + arrivalMinute;
 
-    if (nowMinutes < departure) {
+    if (compareNow < departure) {
         return { state: "boarding", countdownMs: (departure - nowMinutes) * GAME_HOUR_MS / 60 };
     }
-    if (nowMinutes < arrival) {
+    if (compareNow < arrival) {
         return { state: "transit", countdownMs: (arrival - nowMinutes) * GAME_HOUR_MS / 60 };
     }
     return { state: "waiting", countdownMs: (boarding + intervalMinutes - nowMinutes) * GAME_HOUR_MS / 60 };
 }
 
+function scheduledTripsState(nowMs, trips, intervalMinutes) {
+    var nowMinutes = (nowMs - BASIS_MS) / GAME_HOUR_MS * 60;
+    var compareNow = nowMinutes + 0.0000001;
+    var cycleBase = Math.floor(compareNow / intervalMinutes) * intervalMinutes;
+    var nextBoarding = Infinity;
+
+    for (var shift = -1; shift <= 1; shift++) {
+        var base = cycleBase + shift * intervalMinutes;
+        for (var i = 0; i < trips.length; i++) {
+            var boarding = base + trips[i][0];
+            var departure = base + trips[i][1];
+            var arrival = base + trips[i][2];
+            if (compareNow >= boarding && compareNow < departure) {
+                return { state: "boarding", countdownMs: (departure - nowMinutes) * GAME_HOUR_MS / 60 };
+            }
+            if (compareNow >= departure && compareNow < arrival) {
+                return { state: "transit", countdownMs: (arrival - nowMinutes) * GAME_HOUR_MS / 60 };
+            }
+            if (boarding > compareNow) nextBoarding = Math.min(nextBoarding, boarding);
+        }
+    }
+    return { state: "waiting", countdownMs: (nextBoarding - nowMinutes) * GAME_HOUR_MS / 60 };
+}
+
 function transportRoute(nowMs, id, name, boardingMinute, departureMinute, arrivalMinute, intervalMinutes, group) {
     var state = scheduledTripState(nowMs, boardingMinute, departureMinute, arrivalMinute, intervalMinutes);
+    return {
+        id: id,
+        name: name,
+        group: group,
+        state: state.state,
+        countdownMs: state.countdownMs
+    };
+}
+
+function transportMultiRoute(nowMs, id, name, trips, intervalMinutes, group) {
+    var state = scheduledTripsState(nowMs, trips, intervalMinutes);
     return {
         id: id,
         name: name,
@@ -211,18 +247,13 @@ function airships(nowMs) {
 
 function boats(nowMs) {
     return [
-        transportRoute(nowMs, "ferry-s-m", "Selbina → Mhaura", 390, 480, 870, 480, "FERRIES"),
-        transportRoute(nowMs, "ferry-m-s", "Mhaura → Selbina", 390, 480, 870, 480, "FERRIES"),
-        transportRoute(nowMs, "ferry-m-w", "Mhaura → Whitegate", 160, 240, 640, 480, "FERRIES"),
-        transportRoute(nowMs, "ferry-w-m", "Whitegate → Mhaura", 160, 240, 640, 480, "FERRIES"),
-        transportRoute(nowMs, "ferry-w-n", "Whitegate → Nashmau", 300, 480, 780, 480, "FERRIES"),
-        transportRoute(nowMs, "ferry-n-w", "Nashmau → Whitegate", 300, 480, 780, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-s-m", "Selbina ↔ Mhaura", 390, 480, 870, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-m-w", "Mhaura ↔ Whitegate", 160, 240, 640, 480, "FERRIES"),
+        transportRoute(nowMs, "ferry-w-n", "Whitegate ↔ Nashmau", 300, 480, 780, 480, "FERRIES"),
         transportRoute(nowMs, "mana-dhalmel", "Dhalmel Rock tour", 10, 50, 290, 1440, "MANACLIPPER / CLAMMING"),
-        transportRoute(nowMs, "mana-purg-1", "Bibiki → Purgonorg", 290, 330, 520, 1440, "MANACLIPPER / CLAMMING"),
-        transportRoute(nowMs, "mana-bibiki-1", "Purgonorg → Bibiki", 520, 555, 730, 1440, "MANACLIPPER / CLAMMING"),
-        transportRoute(nowMs, "mana-reef", "Maliyakaleya Reef tour", 730, 770, 1010, 1440, "MANACLIPPER / CLAMMING"),
-        transportRoute(nowMs, "mana-purg-2", "Bibiki → Purgonorg", 1010, 1050, 1230, 1440, "MANACLIPPER / CLAMMING"),
-        transportRoute(nowMs, "mana-bibiki-2", "Purgonorg → Bibiki", 1230, 1275, 1450, 1440, "MANACLIPPER / CLAMMING")
+        transportMultiRoute(nowMs, "mana-purg", "Bibiki → Purgonorg", [[290, 330, 520], [1010, 1050, 1230]], 1440, "MANACLIPPER / CLAMMING"),
+        transportMultiRoute(nowMs, "mana-bibiki", "Purgonorg → Bibiki", [[520, 555, 730], [1230, 1275, 1450]], 1440, "MANACLIPPER / CLAMMING"),
+        transportRoute(nowMs, "mana-reef", "Maliyakaleya Reef tour", 730, 770, 1010, 1440, "MANACLIPPER / CLAMMING")
     ];
 }
 

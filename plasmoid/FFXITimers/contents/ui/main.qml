@@ -60,8 +60,9 @@ PlasmoidItem {
 
     function boatLines() {
         var lines = []
-        lines.push("SELBINA ↔ MHAURA")
-        lines.push("Next departure   " + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
+        lines.push("FERRIES")
+        lines.push(padRight("Selbina ↔ Mhaura", 23) + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
+        lines.push(padRight("Mhaura ↔ Whitegate", 23) + FFXI.formatDuration(timerData.boats.whitegateDepartureMs, true))
         lines.push("")
         lines.push("MANACLIPPER / CLAMMING")
         for (var i = 0; i < Math.min(4, timerData.boats.manaclipper.length); i++) {

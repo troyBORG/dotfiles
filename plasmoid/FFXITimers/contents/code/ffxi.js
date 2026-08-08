@@ -207,10 +207,16 @@ function boats(nowMs) {
 
     var ferryElapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS / 3);
     var ferryLeft = GAME_DAY_MS / 3 - ferryElapsed;
+    var whitegateDepartures = [4, 12, 20];
+    var whitegateLeft = GAME_DAY_MS;
+    for (var j = 0; j < whitegateDepartures.length; j++) {
+        whitegateLeft = Math.min(whitegateLeft, nextGameTime(nowMs, whitegateDepartures[j], 0));
+    }
     return {
         manaclipper: output,
         ferryDepartureMs: ferryLeft,
-        ferryArrivalMs: Math.max(0, ferryLeft - 216000)
+        ferryArrivalMs: Math.max(0, ferryLeft - 216000),
+        whitegateDepartureMs: whitegateLeft
     };
 }
 

@@ -87,13 +87,13 @@ PlasmoidItem {
         var status
         var color
         if (route.state === "boarding") {
-            status = "BOARDING · departs "
+            status = "BOARDING "
             color = "#65b985"
         } else if (route.state === "transit") {
-            status = "IN TRANSIT · arrives "
+            status = "IN TRANSIT "
             color = "#58a6d6"
         } else {
-            status = "NEXT SHIP · boards "
+            status = "BOARDS "
             color = "#dedede"
         }
         return "<font color=\"" + color + "\">" + status + FFXI.formatDuration(route.countdownMs, true) + "</font>"
@@ -320,7 +320,7 @@ PlasmoidItem {
                     id: routeColumn
                     visible: root.selectedView !== 0
                     width: contentFlick.width
-                    spacing: Kirigami.Units.smallSpacing
+                    spacing: 0
 
                     Repeater {
                         model: root.transportRoutes()
@@ -409,31 +409,27 @@ PlasmoidItem {
             width: transportRow.width
             spacing: Kirigami.Units.smallSpacing
 
-            ColumnLayout {
+            PlasmaComponents3.Label {
                 Layout.fillWidth: true
-                spacing: 0
+                text: transportRow.route.name
+                font.family: "monospace"
+                font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                elide: Text.ElideRight
+            }
 
-                PlasmaComponents3.Label {
-                    Layout.fillWidth: true
-                    text: transportRow.route.name
-                    font.family: "monospace"
-                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
-                    elide: Text.ElideRight
-                }
-
-                PlasmaComponents3.Label {
-                    Layout.fillWidth: true
-                    text: root.transportLine(transportRow.route)
-                    textFormat: Text.StyledText
-                    font.family: "monospace"
-                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
-                    elide: Text.ElideRight
-                }
+            PlasmaComponents3.Label {
+                text: root.transportLine(transportRow.route)
+                textFormat: Text.StyledText
+                font.family: "monospace"
+                font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
             }
 
             PlasmaComponents3.ToolButton {
+                Layout.preferredWidth: Kirigami.Units.gridUnit * 1.25
+                Layout.preferredHeight: Kirigami.Units.gridUnit * 1.25
                 checkable: true
                 checked: !!root.alertStages[transportRow.route.id]
+                display: QQC2.AbstractButton.IconOnly
                 icon.name: checked ? "notifications" : "notifications-disabled"
                 text: checked ? "Cancel transport alert" : "Arm transport alert"
                 onClicked: root.toggleTransportAlert(transportRow.route)

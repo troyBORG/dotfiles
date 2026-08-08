@@ -175,6 +175,12 @@ function repeatingRouteState(nowMs, departures, tripMinutes) {
     return { state: "boarding", countdownMs: (next - nowMinutes) * GAME_HOUR_MS / 60 };
 }
 
+function advanceFerryAlert(previousState, currentState, remaining) {
+    var triggered = remaining > 0 && previousState === "transit" && currentState === "boarding";
+    var nextRemaining = triggered ? remaining - 1 : remaining;
+    return { triggered: triggered, remaining: nextRemaining, armed: nextRemaining > 0 };
+}
+
 function airships(nowMs, vana) {
     var elapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS);
     var interval = GAME_DAY_MS / 4;

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
+import QtMultimedia
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 import org.kde.kirigami as Kirigami
@@ -12,6 +13,10 @@ PlasmoidItem {
     property var timerData: FFXI.snapshot(Date.now())
     property color accent: "#65b985"
     property int selectedView: 0
+    property bool mhauraAlertArmed: false
+    property int mhauraAlertsRemaining: 0
+    property bool nashmauAlertArmed: false
+    property int nashmauAlertsRemaining: 0
 
     // KDE desktop containments use plain width/height for initial widget size.
     // Layout.preferredWidth/Height only size panel widgets and popups.
@@ -25,7 +30,45 @@ PlasmoidItem {
     switchHeight: Kirigami.Units.gridUnit * 10
 
     function refresh() {
-        timerData = FFXI.snapshot(Date.now())
+        var nextData = FFXI.snapshot(Date.now())
+        if (timerData) {
+            processFerryTransition(
+                "mhaura",
+                timerData.boats.mhauraWhitegateState,
+                nextData.boats.mhauraWhitegateState
+            )
+            processFerryTransition(
+                "nashmau",
+                timerData.boats.nashmauWhitegateState,
+                nextData.boats.nashmauWhitegateState
+            )
+        }
+        timerData = nextData
+    }
+
+    function processFerryTransition(route, previous, current) {
+        var remaining = route === "mhaura" ? mhauraAlertsRemaining : nashmauAlertsRemaining
+        var result = FFXI.advanceFerryAlert(previous.state, current.state, remaining)
+        if (!result.triggered) return
+
+        shipAlert.play()
+        if (route === "mhaura") {
+            mhauraAlertsRemaining = result.remaining
+            mhauraAlertArmed = result.armed
+        } else {
+            nashmauAlertsRemaining = result.remaining
+            nashmauAlertArmed = result.armed
+        }
+    }
+
+    function toggleFerryAlert(route, state) {
+        if (route === "mhaura") {
+            mhauraAlertArmed = !mhauraAlertArmed
+            mhauraAlertsRemaining = mhauraAlertArmed ? (state === "boarding" ? 1 : 2) : 0
+        } else {
+            nashmauAlertArmed = !nashmauAlertArmed
+            nashmauAlertsRemaining = nashmauAlertArmed ? (state === "boarding" ? 1 : 2) : 0
+        }
     }
 
     onSelectedViewChanged: contentFlick.contentY = 0
@@ -62,12 +105,7 @@ PlasmoidItem {
 
     function boatLines() {
         var lines = []
-        var mhaura = timerData.boats.mhauraWhitegateState
-        var nashmau = timerData.boats.nashmauWhitegateState
-        lines.push("FERRIES")
         lines.push(padRight("Selbina ↔ Mhaura", 23).replace(/ /g, "&nbsp;") + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
-        lines.push(ferryLine("Mhaura ↔ Whitegate", mhaura))
-        lines.push(ferryLine("Nashmau ↔ Whitegate", nashmau))
         lines.push("")
         lines.push("MANACLIPPER / CLAMMING")
         for (var i = 0; i < Math.min(4, timerData.boats.manaclipper.length); i++) {
@@ -95,6 +133,12 @@ PlasmoidItem {
         repeat: true
         triggeredOnStart: true
         onTriggered: root.refresh()
+    }
+
+    SoundEffect {
+        id: shipAlert
+        source: Qt.resolvedUrl("../assets/ship-alert.wav")
+        volume: 0.85
     }
 
     compactRepresentation: MouseArea {
@@ -236,6 +280,36 @@ PlasmoidItem {
                 }
             }
 
+            ColumnLayout {
+                Layout.fillWidth: true
+                visible: root.selectedView === 2
+                spacing: 0
+
+                PlasmaComponents3.Label {
+                    text: "FERRIES"
+                    font.family: "monospace"
+                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                }
+
+                FerryAlertRow {
+                    Layout.fillWidth: true
+                    routeName: "Mhaura ↔ Whitegate"
+                    routeState: root.timerData.boats.mhauraWhitegateState
+                    armed: root.mhauraAlertArmed
+                    alertsRemaining: root.mhauraAlertsRemaining
+                    onToggled: root.toggleFerryAlert("mhaura", routeState.state)
+                }
+
+                FerryAlertRow {
+                    Layout.fillWidth: true
+                    routeName: "Nashmau ↔ Whitegate"
+                    routeState: root.timerData.boats.nashmauWhitegateState
+                    armed: root.nashmauAlertArmed
+                    alertsRemaining: root.nashmauAlertsRemaining
+                    onToggled: root.toggleFerryAlert("nashmau", routeState.state)
+                }
+            }
+
             Flickable {
                 id: contentFlick
                 Layout.fillWidth: true
@@ -313,6 +387,40 @@ PlasmoidItem {
                 font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                 elide: Text.ElideRight
             }
+        }
+    }
+
+    component FerryAlertRow: RowLayout {
+        id: ferryRow
+        required property string routeName
+        required property var routeState
+        required property bool armed
+        required property int alertsRemaining
+        signal toggled()
+
+        spacing: Kirigami.Units.smallSpacing
+
+        PlasmaComponents3.Label {
+            Layout.fillWidth: true
+            text: root.ferryLine(ferryRow.routeName, ferryRow.routeState)
+            textFormat: Text.StyledText
+            font.family: "monospace"
+            font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+            elide: Text.ElideRight
+        }
+
+        PlasmaComponents3.ToolButton {
+            checkable: true
+            checked: ferryRow.armed
+            icon.name: ferryRow.armed ? "notifications" : "notifications-disabled"
+            text: ferryRow.armed ? "Cancel ship alert" : "Arm ship alert"
+            onClicked: ferryRow.toggled()
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: ferryRow.armed
+                ? "Armed for " + ferryRow.alertsRemaining + " arrival" + (ferryRow.alertsRemaining === 1 ? "" : "s")
+                : (ferryRow.routeState.state === "boarding"
+                    ? "Alert when this trip reaches its destination"
+                    : "Alert when boarding starts, then again at the destination")
         }
     }
 }

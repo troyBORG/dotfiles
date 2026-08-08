@@ -60,12 +60,12 @@ PlasmoidItem {
 
     function boatLines() {
         var lines = []
-        var whitegate = timerData.boats.whitegateState
-        var status = whitegate.state === "boarding" ? "BOARDING · departs " : "IN TRANSIT · arrives "
-        var color = whitegate.state === "boarding" ? "#65b985" : "#58a6d6"
+        var mhaura = timerData.boats.mhauraWhitegateState
+        var nashmau = timerData.boats.nashmauWhitegateState
         lines.push("FERRIES")
         lines.push(padRight("Selbina ↔ Mhaura", 23).replace(/ /g, "&nbsp;") + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
-        lines.push("<font color=\"" + color + "\">" + padRight("Mhaura ↔ Whitegate", 23).replace(/ /g, "&nbsp;") + status + FFXI.formatDuration(whitegate.countdownMs, true) + "</font>")
+        lines.push(ferryLine("Mhaura ↔ Whitegate", mhaura))
+        lines.push(ferryLine("Nashmau ↔ Whitegate", nashmau))
         lines.push("")
         lines.push("MANACLIPPER / CLAMMING")
         for (var i = 0; i < Math.min(4, timerData.boats.manaclipper.length); i++) {
@@ -73,6 +73,12 @@ PlasmoidItem {
             lines.push(padRight(boat.name, 22).replace(/ /g, "&nbsp;") + boat.departure + "&nbsp;&nbsp;in&nbsp;" + FFXI.formatDuration(boat.departureMs, true))
         }
         return lines.join("<br>")
+    }
+
+    function ferryLine(name, route) {
+        var status = route.state === "boarding" ? "BOARDING · departs " : "IN TRANSIT · arrives "
+        var color = route.state === "boarding" ? "#65b985" : "#58a6d6"
+        return "<font color=\"" + color + "\">" + padRight(name, 23).replace(/ /g, "&nbsp;") + status + FFXI.formatDuration(route.countdownMs, true) + "</font>"
     }
 
     function activeLines() {

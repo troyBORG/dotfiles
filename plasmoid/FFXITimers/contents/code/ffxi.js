@@ -234,7 +234,8 @@ function boats(nowMs) {
         ferryDepartureMs: ferryLeft,
         ferryArrivalMs: Math.max(0, ferryLeft - 216000),
         whitegateDepartureMs: whitegateLeft,
-        whitegateState: repeatingRouteState(nowMs, [240, 720, 1200], 400)
+        mhauraWhitegateState: repeatingRouteState(nowMs, [240, 720, 1200], 400),
+        nashmauWhitegateState: repeatingRouteState(nowMs, [0, 480, 960], 400)
     };
 }
 

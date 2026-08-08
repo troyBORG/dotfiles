@@ -60,16 +60,19 @@ PlasmoidItem {
 
     function boatLines() {
         var lines = []
+        var whitegate = timerData.boats.whitegateState
+        var status = whitegate.state === "boarding" ? "BOARDING · departs " : "IN TRANSIT · arrives "
+        var color = whitegate.state === "boarding" ? "#65b985" : "#58a6d6"
         lines.push("FERRIES")
-        lines.push(padRight("Selbina ↔ Mhaura", 23) + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
-        lines.push(padRight("Mhaura ↔ Whitegate", 23) + FFXI.formatDuration(timerData.boats.whitegateDepartureMs, true))
+        lines.push(padRight("Selbina ↔ Mhaura", 23).replace(/ /g, "&nbsp;") + FFXI.formatDuration(timerData.boats.ferryDepartureMs, true))
+        lines.push("<font color=\"" + color + "\">" + padRight("Mhaura ↔ Whitegate", 23).replace(/ /g, "&nbsp;") + status + FFXI.formatDuration(whitegate.countdownMs, true) + "</font>")
         lines.push("")
         lines.push("MANACLIPPER / CLAMMING")
         for (var i = 0; i < Math.min(4, timerData.boats.manaclipper.length); i++) {
             var boat = timerData.boats.manaclipper[i]
-            lines.push(padRight(boat.name, 22) + boat.departure + "  in " + FFXI.formatDuration(boat.departureMs, true))
+            lines.push(padRight(boat.name, 22).replace(/ /g, "&nbsp;") + boat.departure + "&nbsp;&nbsp;in&nbsp;" + FFXI.formatDuration(boat.departureMs, true))
         }
-        return lines.join("\n")
+        return lines.join("<br>")
     }
 
     function activeLines() {
@@ -234,7 +237,7 @@ PlasmoidItem {
                 PlasmaComponents3.Label {
                     anchors.fill: parent
                     text: root.timerData ? root.activeLines() : ""
-                    textFormat: Text.PlainText
+                    textFormat: root.selectedView === 2 ? Text.StyledText : Text.PlainText
                     font.family: "monospace"
                     font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
                     lineHeight: 1.3

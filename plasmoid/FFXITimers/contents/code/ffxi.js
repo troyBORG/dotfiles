@@ -158,6 +158,23 @@ function nextGameTime(nowMs, hour, minute) {
     return left;
 }
 
+function repeatingRouteState(nowMs, departures, tripMinutes) {
+    var dayMinutes = 24 * 60;
+    var nowMinutes = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS) / GAME_HOUR_MS * 60;
+    var previous = departures[departures.length - 1] - dayMinutes;
+    var next = departures[0];
+    for (var i = 0; i < departures.length; i++) {
+        if (departures[i] <= nowMinutes) previous = departures[i];
+        if (departures[i] > nowMinutes) { next = departures[i]; break; }
+    }
+    if (next <= nowMinutes) next += dayMinutes;
+    var sinceDeparture = nowMinutes - previous;
+    if (sinceDeparture < tripMinutes) {
+        return { state: "transit", countdownMs: (tripMinutes - sinceDeparture) * GAME_HOUR_MS / 60 };
+    }
+    return { state: "boarding", countdownMs: (next - nowMinutes) * GAME_HOUR_MS / 60 };
+}
+
 function airships(nowMs, vana) {
     var elapsed = positiveMod(nowMs - BASIS_MS, GAME_DAY_MS);
     var interval = GAME_DAY_MS / 4;
@@ -216,7 +233,8 @@ function boats(nowMs) {
         manaclipper: output,
         ferryDepartureMs: ferryLeft,
         ferryArrivalMs: Math.max(0, ferryLeft - 216000),
-        whitegateDepartureMs: whitegateLeft
+        whitegateDepartureMs: whitegateLeft,
+        whitegateState: repeatingRouteState(nowMs, [240, 720, 1200], 400)
     };
 }
 

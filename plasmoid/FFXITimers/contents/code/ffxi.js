@@ -257,6 +257,13 @@ function boats(nowMs) {
     ];
 }
 
+function parseServerStatus(value) {
+    var text = String(value).trim();
+    if (!/^\d+$/.test(text)) return { state: "unknown", players: 0 };
+    var players = parseInt(text, 10);
+    return { state: players > 0 ? "online" : "offline", players: players };
+}
+
 function snapshot(nowMs) {
     var vana = vanaTime(nowMs);
     var moonInfo = moon(nowMs);

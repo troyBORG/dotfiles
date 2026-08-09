@@ -14,6 +14,9 @@ PlasmoidItem {
     property color accent: "#65b985"
     property int selectedView: 0
     property var alertStages: ({})
+    property string horizonStatus: "unknown"
+    property int horizonPlayers: 0
+    property var horizonRequest: null
 
     // KDE desktop containments use plain width/height for initial widget size.
     // Layout.preferredWidth/Height only size panel widgets and popups.
@@ -30,6 +33,43 @@ PlasmoidItem {
         var nextData = FFXI.snapshot(Date.now())
         if (timerData) processTransportTransitions(timerData, nextData)
         timerData = nextData
+    }
+
+    function refreshHorizonStatus() {
+        if (horizonRequest !== null) return
+
+        var request = new XMLHttpRequest()
+        horizonRequest = request
+        horizonRequestTimeout.restart()
+        request.onreadystatechange = function() {
+            if (request.readyState !== XMLHttpRequest.DONE || horizonRequest !== request) return
+
+            horizonRequest = null
+            horizonRequestTimeout.stop()
+            if (request.status !== 200) {
+                horizonStatus = "unknown"
+                horizonPlayers = 0
+                return
+            }
+
+            var result = FFXI.parseServerStatus(request.responseText)
+            horizonStatus = result.state
+            horizonPlayers = result.players
+        }
+        request.open("GET", "https://api.horizonxi.com/api/v1/misc/status")
+        request.send()
+    }
+
+    function horizonStatusText() {
+        if (horizonStatus === "online") return "ONLINE · " + horizonPlayers + " PLAYERS"
+        if (horizonStatus === "offline") return "OFFLINE"
+        return "STATUS UNKNOWN"
+    }
+
+    function horizonStatusColor() {
+        if (horizonStatus === "online") return "#65b985"
+        if (horizonStatus === "offline") return "#d66565"
+        return Kirigami.Theme.disabledTextColor
     }
 
     function allRoutes(data) {
@@ -151,6 +191,25 @@ PlasmoidItem {
         onTriggered: root.refresh()
     }
 
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: root.refreshHorizonStatus()
+    }
+
+    Timer {
+        id: horizonRequestTimeout
+        interval: 10000
+        onTriggered: {
+            if (root.horizonRequest !== null) root.horizonRequest.abort()
+            root.horizonRequest = null
+            root.horizonStatus = "unknown"
+            root.horizonPlayers = 0
+        }
+    }
+
     Notification {
         id: transportNotification
         componentName: "plasma_workspace"
@@ -209,12 +268,37 @@ PlasmoidItem {
                     Layout.fillWidth: true
                     spacing: 0
 
-                    PlasmaComponents3.Label {
-                        text: "VANA'DIEL"
-                        opacity: 0.62
-                        font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
-                        font.capitalization: Font.AllUppercase
-                        font.letterSpacing: 1.2
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        PlasmaComponents3.Label {
+                            text: "VANA'DIEL"
+                            opacity: 0.62
+                            font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                            font.capitalization: Font.AllUppercase
+                            font.letterSpacing: 1.2
+                        }
+
+                        Item {
+                            Layout.fillWidth: true
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: Kirigami.Units.smallSpacing
+                            Layout.preferredHeight: Kirigami.Units.smallSpacing
+                            radius: width / 2
+                            color: root.horizonStatusColor()
+                        }
+
+                        PlasmaComponents3.Label {
+                            text: "HORIZONXI " + root.horizonStatusText()
+                            color: root.horizonStatusColor()
+                            font.family: "monospace"
+                            font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.58)
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                        }
                     }
 
                     PlasmaComponents3.Label {

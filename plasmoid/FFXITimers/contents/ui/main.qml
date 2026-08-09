@@ -117,7 +117,6 @@ PlasmoidItem {
         transportNotification.sendEvent()
     }
 
-    onSelectedViewChanged: contentFlick.contentY = 0
 
     function localDate(date) {
         return Qt.formatDateTime(date, "ddd MMM d, h:mm AP")
@@ -408,7 +407,6 @@ PlasmoidItem {
 
         PlasmaComponents3.Label {
             visible: transportRow.showHeader
-            height: visible ? implicitHeight : 0
             text: transportRow.route.group
             font.family: "monospace"
             font.weight: Font.DemiBold

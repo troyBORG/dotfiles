@@ -380,15 +380,40 @@ PlasmoidItem {
                     checked: root.selectedView === 2
                     onClicked: root.selectedView = 2
                 }
+                PlasmaComponents3.Button {
+                    Layout.fillWidth: true
+                    autoExclusive: true
+                    text: "Days"
+                    checkable: true
+                    checked: root.selectedView === 3
+                    onClicked: root.selectedView = 3
+                }
             }
 
             Flickable {
                 id: contentFlick
+                property double firstDayStartMs: root.timerData.upcomingDays[0].startMs
+
+                function resetScroll() {
+                    cancelFlick()
+                    Qt.callLater(function() { contentFlick.contentY = 0 })
+                }
+
+                onFirstDayStartMsChanged: {
+                    if (root.selectedView === 3) resetScroll()
+                }
+
+                Connections {
+                    target: root
+                    function onSelectedViewChanged() { contentFlick.resetScroll() }
+                }
+
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
                 contentWidth: width
-                contentHeight: root.selectedView === 0 ? timerLabel.implicitHeight : routeColumn.implicitHeight
+                contentHeight: root.selectedView === 0 ? timerLabel.implicitHeight
+                    : root.selectedView === 3 ? daysColumn.implicitHeight : routeColumn.implicitHeight
                 boundsBehavior: Flickable.StopAtBounds
                 flickableDirection: Flickable.VerticalFlick
                 QQC2.ScrollBar.vertical: QQC2.ScrollBar {
@@ -411,8 +436,68 @@ PlasmoidItem {
                 }
 
                 Column {
+                    id: daysColumn
+                    visible: root.selectedView === 3
+                    width: contentFlick.width
+                    spacing: Kirigami.Units.smallSpacing
+
+                    PlasmaComponents3.Label {
+                        width: parent.width
+                        text: "Next 10 day starts · local time"
+                        opacity: 0.65
+                        font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Repeater {
+                        model: 10
+
+                        delegate: Column {
+                            id: dayRow
+                            required property int index
+                            property var dayInfo: root.timerData.upcomingDays[index]
+                            width: daysColumn.width
+                            spacing: 0
+
+                            PlasmaComponents3.Label {
+                                width: parent.width
+                                text: dayRow.dayInfo.dayName
+                                color: dayRow.dayInfo.dayColor
+                                font.weight: Font.DemiBold
+                                font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                            }
+
+                            RowLayout {
+                                width: parent.width
+                                spacing: Kirigami.Units.smallSpacing
+
+                                PlasmaComponents3.Label {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    text: root.localDate(new Date(dayRow.dayInfo.startMs))
+                                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                                    opacity: 0.82
+                                    wrapMode: Text.WordWrap
+                                }
+
+                                PlasmaComponents3.Label {
+                                    Layout.preferredWidth: implicitWidth
+                                    Layout.maximumWidth: dayRow.width * 0.45
+                                    text: "in " + FFXI.formatDuration(dayRow.dayInfo.countdownMs, true)
+                                    font.family: "monospace"
+                                    font.pixelSize: Math.max(9, Kirigami.Units.gridUnit * 0.65)
+                                    horizontalAlignment: Text.AlignRight
+                                    wrapMode: Text.WordWrap
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                Column {
                     id: routeColumn
-                    visible: root.selectedView !== 0
+                    visible: root.selectedView === 1 || root.selectedView === 2
                     width: contentFlick.width
                     spacing: 0
 

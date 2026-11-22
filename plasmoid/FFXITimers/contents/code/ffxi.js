@@ -264,6 +264,23 @@ function parseServerStatus(value) {
     return { state: players > 0 ? "online" : "offline", players: players };
 }
 
+function upcomingDays(nowMs) {
+    var nextStartMs = nowMs - positiveMod(nowMs - BASIS_MS, GAME_DAY_MS) + GAME_DAY_MS;
+    var result = [];
+    for (var i = 0; i < 10; i++) {
+        var startMs = nextStartMs + i * GAME_DAY_MS;
+        var vana = vanaTime(startMs);
+        result.push({
+            startMs: startMs,
+            countdownMs: startMs - nowMs,
+            dayName: vana.dayName,
+            dayColor: vana.dayColor
+        });
+    }
+    return result;
+}
+
+
 function snapshot(nowMs) {
     var vana = vanaTime(nowMs);
     var moonInfo = moon(nowMs);
@@ -276,6 +293,7 @@ function snapshot(nowMs) {
         conquest: conquestInfo,
         guilds: states,
         airships: airships(nowMs, vana),
-        boats: boats(nowMs)
+        boats: boats(nowMs),
+        upcomingDays: upcomingDays(nowMs)
     };
 }
